@@ -127,3 +127,10 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+#Repo specific
+plan.md
+data/
+status_report/
+meetings/
+presentation/
