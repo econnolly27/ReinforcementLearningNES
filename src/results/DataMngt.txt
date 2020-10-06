@@ -1,0 +1,10 @@
+# Results Data Management
+
+## How to save data
+
+* JPG files from plots
+* Pickle files
+* behaviour.py
+* experiment json file
+* CSV file for dataset
+* Save model weights

@@ -27,9 +27,22 @@
  
 ## 30 Sept 2020
  
-* *1 hour* Meeting with supervisor - First a group meeting where we discussed his expectations for the projects, our weekly meeting formats and what we can expect from him, then a one-to-one meeting where we discussed the finer details of the project - given an existing repo to expand and experiement with, can choose 3 NES games to test, hardware details etc.
+* *1 hour* Meeting with supervisor - First a group meeting where we discussed his expectations for the projects, our weekly meeting formats and what we can expect from him, then a one-to-one meeting where we discussed the finer details of the project - given an existing repo to expand and experiment with, can choose 3 NES games to test, hardware details etc.
  
 ## 1 Oct 2020
  
-*1 hour* Began to read through background material provided by supervisor
-*1 hour* Created GitHub repo, editing project template and started plan and timelog
+* *1 hour* Began to read through background material provided by supervisor
+* *1 hour* Created GitHub repo, editing project template and started plan and timelog
+
+## 2 Oct 2020
+
+* *0.5 hour* Continued background reading of general AI and NES game specific information
+
+## 3 Oct 2020
+* *0.5 hour*   Wrote up meeting notes from first group and solo meeting
+
+## 6 Oct 2020
+* *2 hours* Wrote up research summaries
+* *1 hour* Meeting with supervisor demoing existing codebase for Super Mario Bros
+* *0.5 hour* Wrote up meeting notes from today's meeting
+* *0.5 hour* Cloned Gerardo's codebase into src folder
