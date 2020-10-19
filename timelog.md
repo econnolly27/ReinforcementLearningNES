@@ -46,3 +46,28 @@
 * *1 hour* Meeting with supervisor demoing existing codebase for Super Mario Bros
 * *0.5 hour* Wrote up meeting notes from today's meeting
 * *0.5 hour* Cloned Gerardo's codebase into src folder
+
+## 7 Oct 2020 
+* *2 hours* Tried to get code working, currently unsuccessful
+
+## 13 Oct 2020
+* *1 hour* Meeting with supervisor and other students to show project progress
+* *1 hour* Installed most of the code's requirements.
+
+## 14 Oct 2020
+* *1 hour* Tried to get code running, failing due to gym retro errors.
+
+## 15 Oct 2020
+* *1 hour* Tried to get code running, faced gym-retro errors. 
+
+## 16 Oct 2020
+* *1 hour* Cloned the repo again, replaced the gym-retro version with one provided by Gerardo
+* *2 hour* Facing different error - GPU running out of memory, tried changing number of workers and image size
+* *1 hour* Spoke to Gerardo about what I was supposed to be focusing on, train.py instead of behaviours.
+* *1 hour* New error - info gives a runtime error as it appears to be empty.
+
+## 19 Oct 2020
+* *1 hour* Cloned fixed repo, installed proper version of CUDA
+* *1 hour* Managed to get train.py running, still not managed to finish level.
+* *2 hour* Caught up on timelog and plan.
+* *0.5 hour* Made slides for meeting tomorrow.
