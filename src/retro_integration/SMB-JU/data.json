@@ -1,0 +1,76 @@
+{
+  "info": {
+    "coins": {
+      "address": 1886,
+      "type": "|u1"
+    },
+    "levelHi": {
+      "address": 1887,
+      "type": "|i1"
+    },
+    "levelLo": {
+      "address": 1884,
+      "type": "|i1"
+    },
+    "gameMode":{
+      "address": 1904,
+      "type": ">u1"
+    },
+    "lives": {
+      "address": 1882,
+      "type": "|i1"
+    },
+    "score": {
+      "address": 2013,
+      "type": ">n6"
+    },
+    "scrollamaount": {
+      "address": 1909,
+      "type": "|u1"
+    },
+    "scrolling": {
+      "address": 1912,
+      "type": "|i1"
+    },
+    "status": {
+      "address": 14,
+      "type": ">u1"
+    },
+    "time": {
+      "address": 2040,
+      "type": ">n3"
+    },
+    "xscrollHi": {
+      "address": 1818,
+      "type": "|u1"
+    },
+    "xscrollLo": {
+      "address": 1820,
+      "type": "|u1"
+    },
+    "floatState":{
+      "address": 29,
+      "type": ">u1"
+    },
+    "enemyType1":{
+      "address": 22,
+      "type": ">u1"
+    },
+    "enemyType2":{
+      "address": 23,
+      "type": ">u1"
+    },
+    "enemyType3":{
+      "address": 24,
+      "type": ">u1"
+    },
+    "enemyType4":{
+      "address": 25,
+      "type": ">u1"
+    },
+    "enemyType5":{
+      "address": 26,
+      "type": ">u1"
+    }
+  }
+}

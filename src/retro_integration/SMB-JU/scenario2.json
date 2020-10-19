@@ -1,0 +1,21 @@
+{
+  "done": {
+    "variables": {
+      "status": {
+        "op": "equal",
+        "reference": 11
+      },
+      "lives": {
+        "op": "equal",
+        "reference": 1
+      }
+    }
+  },
+  "reward": {
+    "variables": {
+      "xscrollLo": {
+        "reward": 1.0
+      }
+    }
+  }
+}
