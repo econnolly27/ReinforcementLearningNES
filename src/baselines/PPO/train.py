@@ -77,6 +77,8 @@ def train(opt):
 
     current_time = now.strftime("%H:%M:%S")
     print("Current Time =", current_time)
+    start_time = time.time()
+
 
     savefile = opt.saved_path + '/PPO_train.csv'
     print(savefile)
@@ -121,7 +123,6 @@ def train(opt):
         #     # torch.save(model.state_dict(), "{}/ppo_super_mario_bros_{}_{}".format(opt.saved_path, opt.world, opt.stage))
         #     torch.save(model.state_dict(), "{}/ppo_super_mario_bros_{}_{}_{}".format(opt.saved_path, opt.world, opt.stage, tot_loops))
 
-        start_time = time.time()
 
         # Accumulate evidence
         tot_loops += 1
@@ -226,7 +227,8 @@ def train(opt):
             writer = csv.writer(sfile)
             writer.writerows([data])
         elapsed_time = time.time() - start_time
-        print("Steps: {}. Total loss: {}. Time elapsed: {}".format(tot_steps, total_loss,elapsed_time))
+        print("Steps: {}. Total loss: {}. Time elapsed: {}".format(tot_steps, total_loss,time.strftime("%H:%M:%S", time.gmtime(elapsed_time))
+))
 
 
 if __name__ == "__main__":
