@@ -20,6 +20,7 @@ import numpy as np
 import shutil, csv, time
 from src.helpers import flag_get
 from datetime import datetime
+import time
 
 TEST_ON_THE_GO = True
 
@@ -38,7 +39,7 @@ def get_args():
     parser.add_argument('--num_epochs', type=int, default=10)
     parser.add_argument("--num_local_steps", type=int, default=512)
     parser.add_argument("--num_global_steps", type=int, default=5e6)
-    parser.add_argument("--num_processes", type=int, default=2, help="Number of concurrent processes, has to be larger than 1")
+    parser.add_argument("--num_processes", type=int, default=4, help="Number of concurrent processes, has to be larger than 1")
     parser.add_argument("--save_interval", type=int, default=50, help="Number of steps between savings")
     parser.add_argument("--max_actions", type=int, default=200, help="Maximum repetition steps in test phase")
     parser.add_argument("--log_path", type=str, default="tensorboard/ppo_super_mario_bros")
@@ -63,16 +64,20 @@ def train(opt):
     
     opt.saved_path = os.getcwd() + '/baselines/PPO/' + opt.saved_path
     # if os.path.isdir(opt.log_path):
-    #     shutil.rmtree(opt.log_path)
+    #     shutil.rmtree(opt.log_path)Miles Jupp
     
     # os.makedirs(opt.log_path)
     
     if not os.path.isdir(opt.saved_path):
         os.makedirs(opt.saved_path)
 
+    start_time = time.time()       
+
     now = datetime.now()
+
     current_time = now.strftime("%H:%M:%S")
     print("Current Time =", current_time)
+
     savefile = opt.saved_path + '/PPO_train.csv'
     print(savefile)
     title = ['Loops', 'Steps', 'Time', 'AvgLoss', 'MeanReward', "StdReward", "TotalReward", "Flags"]
@@ -220,7 +225,8 @@ def train(opt):
         with open(savefile, 'a', newline='') as sfile:
             writer = csv.writer(sfile)
             writer.writerows([data])
-        print("Steps: {}. Total loss: {}".format(tot_steps, total_loss))
+        elapsed_time = time.time() - start_time
+        print("Steps: {}. Total loss: {}. Time elapsed: {}".format(tot_steps, total_loss,elapsed_time))
 
 
 if __name__ == "__main__":

@@ -71,3 +71,7 @@
 * *1 hour* Managed to get train.py running, still not managed to finish level.
 * *2 hour* Caught up on timelog and plan.
 * *0.5 hour* Made slides for meeting tomorrow.
+
+## 20 Oct 2020
+* *1 hour* Meeting with supervisor and other students to show project progress
+
