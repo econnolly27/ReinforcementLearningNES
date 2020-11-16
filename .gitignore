@@ -135,3 +135,5 @@ status_report/
 meetings/
 presentation/
 trained_models/
+*.csv
+*.json
