@@ -8,6 +8,8 @@ Re-implemented to use gym-retro
 import os
 
 os.environ['OMP_NUM_THREADS'] = '1'
+os.environ['DISPLAY'] = ':1'
+
 import argparse
 import torch
 from src.env import MultipleEnvironments
@@ -59,8 +61,10 @@ def check_flag(info):
 def train(opt):
     if torch.cuda.is_available():
         torch.cuda.manual_seed(123)
+        print("using cuda")
     else:
         torch.manual_seed(123)
+        print("not using cuda")
     
     opt.saved_path = os.getcwd() + '/baselines/PPO/' + opt.saved_path
     # if os.path.isdir(opt.log_path):
