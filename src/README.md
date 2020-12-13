@@ -1,14 +1,16 @@
-# mario-bm
+# Reinforcement Learning in NES Games
+# Level 4 Individual Project
+# Erin Connolly 2314064C
 
 ## Setup Instructions
 
 * Get Anaconda (version doesn't matter)
-* Get CUDA 10.1 from https://developer.nvidia.com/cuda-10.1-download-archive-base?target_os=Linux&target_arch=x86_64&target_distro=Ubuntu&target_version=1804&target_type=debnetwork
+* Get CUDA 11 from https://developer.nvidia.com/cuda-downloads?target_os=Linux&target_arch=x86_64&target_distro=Ubuntu&target_version=2004&target_type=debnetwork
   * Make sure to download "deb-network" and follow the instructions in the page
 * `conda create --name mariobm python=3.7.5`
 * Activate mariobm environment with: `conda activate mariobm`
 * Following commands should be run inside mariobm environment:
-  * `conda install pytorch torchvision cudatoolkit=10.1 -c pytorch`
+  * `conda install pytorch torchvision cudatoolkit=11 -c pytorch`
   * `conda install scikit-learn scipy pandas matplotlib`
   * `conda install -c conda-forge scikit-image scikit-plot`
   * `conda install scipy scikit-image scikit-learn pillow pandas numpy matplotlib imageio`
