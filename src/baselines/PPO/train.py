@@ -6,10 +6,6 @@ Re-implemented to use gym-retro
 """
 
 import os
-
-os.environ['OMP_NUM_THREADS'] = '1'
-os.environ['DISPLAY'] = ':1'
-
 import argparse
 import torch
 from src.env import MultipleEnvironments
@@ -23,6 +19,9 @@ import shutil, csv, time
 from src.helpers import flag_get
 from datetime import datetime
 import time
+
+os.environ['OMP_NUM_THREADS'] = '1'
+os.environ['DISPLAY'] = ':1'
 
 TEST_ON_THE_GO = True
 

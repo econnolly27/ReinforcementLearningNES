@@ -3,7 +3,6 @@
 """
 
 import os
-os.environ['OMP_NUM_THREADS'] = '1'
 import argparse
 import torch
 from src.env import create_train_env
@@ -12,6 +11,9 @@ from src.optimizer import GlobalAdam
 from src.process import local_train, local_test
 import torch.multiprocessing as _mp
 import shutil
+
+os.environ['OMP_NUM_THREADS'] = '1'
+os.environ['DISPLAY'] = ':1'
 
 
 def get_args():
