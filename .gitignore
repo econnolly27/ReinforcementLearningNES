@@ -137,3 +137,5 @@ presentation/
 trained_models/
 *.csv
 *.json
+src/baselines/PPO/trained_models/PPO_test.csv
+src/baselines/PPO/trained_models/PPO_train.csv
