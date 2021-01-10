@@ -136,6 +136,7 @@ meetings/
 presentation/
 trained_models/
 *.csv
+tensorboard/
 *.json
 src/baselines/PPO/trained_models/PPO_test.csv
 src/baselines/PPO/trained_models/PPO_train.csv

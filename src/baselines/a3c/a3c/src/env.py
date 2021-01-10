@@ -61,7 +61,7 @@ class CustomReward(Wrapper):
         reward += (info["score"] - self.curr_score) / 40.
         self.curr_score = info["score"]
         if done:
-            if info["flag_get"]:
+            if flag_get(info):                #info["flag_get"]:
                 reward += 50
             else:
                 reward -= 50
@@ -98,7 +98,7 @@ class CustomSkipFrame(Wrapper):
         return states.astype(np.float32)
 
 
-def create_train_env(world, stage, action_type, output_path=None):
+def create_train_env(actions, output_path=None, mp_wrapper=True):
     #env = gym_super_mario_bros.make("SuperMarioBros-{}-{}-v0".format(world, stage))
     
     retro.data.Integrations.add_custom_path(os.path.join(SCRIPT_DIR, "retro_integration"))
@@ -113,9 +113,48 @@ def create_train_env(world, stage, action_type, output_path=None):
 
     if output_path:
         monitor = Monitor(256, 240, output_path)
+        #monitor = Noneenv = JoypadSpace(env, actions)
+
     else:
-        monitor = Noneenv = JoypadSpace(env, actions)
+        monitor = None
+    env=JoypadSpace(env,actions)
     env = CustomReward(env, monitor)
     env = CustomSkipFrame(env)
 
     return env
+
+class MultipleEnvironments:
+    def __init__(self, world, stage, action_type, num_envs, output_path=None):
+        if action_type == "right":
+            actions = RIGHT_ONLY
+        elif action_type == "simple":
+            actions = SIMPLE_MOVEMENT
+        else:
+            actions = COMPLEX_MOVEMENT
+
+        # self.envs = create_train_env(actions, output_path=output_path)
+        self.envs = [create_train_env(actions, output_path=output_path) for _ in range(num_envs)]
+        
+        self.num_states = self.envs[0].observation_space.shape[0]
+        self.num_actions = len(actions)
+        self.num_envs = len(self.envs)
+
+        # for index in range(num_envs):
+        #     process = mp.Process(target=self.run, args=(index,))
+        #     process.start()
+        #     self.env_conns[index].close()
+
+    # def run(self, index, actions=None, output_path=None):
+    #     if actions is not None:
+    #         env = create_train_env(actions, output_path=output_path)
+    #         self.envs.append(env)
+    #     else:
+    #         self.agent_conns[index].close()
+    #         while True:
+    #             request, action = self.env_conns[index].recv()
+    #             if request == "step":
+    #                 self.env_conns[index].send(self.envs[index].step(action.item()))
+    #             elif request == "reset":
+    #                 self.env_conns[index].send(self.envs[index].reset())
+    #             else:
+    #                 raise NotImplementedError

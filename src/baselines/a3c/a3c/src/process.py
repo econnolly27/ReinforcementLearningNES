@@ -10,14 +10,24 @@ from torch.distributions import Categorical
 from collections import deque
 from tensorboardX import SummaryWriter
 import timeit
+from src.helpers import SIMPLE_MOVEMENT, COMPLEX_MOVEMENT, RIGHT_ONLY, flag_get
 
 
-def local_train(index, opt, global_model, optimizer, save=False):
+
+def local_train(index, opt, global_model, optimizer,num_states,num_actions, save=False):
     torch.manual_seed(123 + index)
     if save:
         start_time = timeit.default_timer()
     writer = SummaryWriter(opt.log_path)
-    env, num_states, num_actions = create_train_env(opt.world, opt.stage, opt.action_type)
+
+    if opt.action_type == "right":
+        actions = RIGHT_ONLY
+    elif opt.action_type == "simple":
+        actions = SIMPLE_MOVEMENT
+    else:
+        actions = COMPLEX_MOVEMENT
+
+    env = create_train_env(actions, mp_wrapper=False)
     local_model = ActorCritic(num_states, num_actions)
     if opt.use_gpu:
         local_model.cuda()
@@ -33,7 +43,7 @@ def local_train(index, opt, global_model, optimizer, save=False):
             if curr_episode % opt.save_interval == 0 and curr_episode > 0:
                 torch.save(global_model.state_dict(),
                            "{}/a3c_super_mario_bros_{}_{}".format(opt.saved_path, opt.world, opt.stage))
-            print("Process {}. Episode {}".format(index, curr_episode))
+            #print("Process {}. Episode {}".format(index, curr_episode))
         curr_episode += 1
         local_model.load_state_dict(global_model.state_dict())
         if done:
@@ -53,7 +63,9 @@ def local_train(index, opt, global_model, optimizer, save=False):
 
         for _ in range(opt.num_local_steps):
             curr_step += 1
-            logits, value, h_0, c_0 = local_model(state, h_0, c_0)
+            one=0
+            two=0
+            logits, value, h_0, c_0,one,two = local_model(state, h_0, c_0,one,two)
             policy = F.softmax(logits, dim=1)
             log_policy = F.log_softmax(logits, dim=1)
             entropy = -(policy * log_policy).sum(1, keepdim=True)
@@ -86,7 +98,7 @@ def local_train(index, opt, global_model, optimizer, save=False):
         if opt.use_gpu:
             R = R.cuda()
         if not done:
-            _, R, _, _ = local_model(state, h_0, c_0)
+            _, R, _, _,states,actions = local_model(state, h_0, c_0,num_states,num_actions)
 
         gae = torch.zeros((1, 1), dtype=torch.float)
         if opt.use_gpu:
@@ -114,6 +126,7 @@ def local_train(index, opt, global_model, optimizer, save=False):
             if global_param.grad is not None:
                 break
             global_param._grad = local_param.grad
+        #env.render()
 
         optimizer.step()
 
@@ -125,9 +138,17 @@ def local_train(index, opt, global_model, optimizer, save=False):
             return
 
 
-def local_test(index, opt, global_model):
+def local_test(index, opt, global_model,num_states,num_actions):
+
+    if opt.action_type == "right":
+        actions = RIGHT_ONLY
+    elif opt.action_type == "simple":
+        actions = SIMPLE_MOVEMENT
+    else:
+        actions = COMPLEX_MOVEMENT
+
     torch.manual_seed(123 + index)
-    env, num_states, num_actions = create_train_env(opt.world, opt.stage, opt.action_type)
+    env = create_train_env(actions, mp_wrapper=False)
     local_model = ActorCritic(num_states, num_actions)
     local_model.eval()
     state = torch.from_numpy(env.reset())
@@ -145,8 +166,9 @@ def local_test(index, opt, global_model):
             else:
                 h_0 = h_0.detach()
                 c_0 = c_0.detach()
-
-        logits, value, h_0, c_0 = local_model(state, h_0, c_0)
+        one=0
+        two=0
+        logits, value, h_0, c_0,one,two = local_model(state, h_0, c_0,one,two)
         policy = F.softmax(logits, dim=1)
         action = torch.argmax(policy).item()
         state, reward, done, _ = env.step(action)

@@ -17,8 +17,8 @@ import torch.nn.functional as F
 import numpy as np
 import shutil, csv, time
 from src.helpers import flag_get
+from src.helpers import _is_stage_over
 from datetime import datetime
-import time
 
 os.environ['OMP_NUM_THREADS'] = '1'
 os.environ['DISPLAY'] = ':1'
@@ -28,7 +28,7 @@ TEST_ON_THE_GO = True
 def get_args():
     parser = argparse.ArgumentParser(
         """Implementation of model described in the paper: Proximal Policy Optimization Algorithms for Super Mario Bros""")
-    parser.add_argument("--world", type=int, default=1)
+    parser.add_argument("--world", type=int, default=7)
     parser.add_argument("--stage", type=int, default=1)
     parser.add_argument("--action_type", type=str, default="simple")
     parser.add_argument('--lr', type=float, default=1e-4)
@@ -230,8 +230,9 @@ def train(opt):
             writer = csv.writer(sfile)
             writer.writerows([data])
         elapsed_time = time.time() - start_time
-        print("Steps: {}. Total loss: {}. Time elapsed: {}".format(tot_steps, total_loss,time.strftime("%H:%M:%S", time.gmtime(elapsed_time))
-))
+        print("Steps: {}. Total loss: {}. Time elapsed: {}".format(tot_steps, total_loss,time.strftime("%H:%M:%S", time.gmtime(elapsed_time))))
+        if check_flag(info):
+            print("Stage finished")
 
 
 if __name__ == "__main__":

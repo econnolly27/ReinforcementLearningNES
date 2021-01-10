@@ -19,7 +19,7 @@ from src.retrowrapper import RetroWrapper
 
 SCRIPT_DIR = os.getcwd() #os.path.dirname(os.path.abspath(__file__))
 ENV_NAME = 'SMB-JU'
-LVL_ID = 'Level1-1'
+LVL_ID = 'Level2-1'
 
 class Monitor:
     def __init__(self, width, height, saved_path):
