@@ -1,0 +1,16 @@
+{
+  "info": {
+    "level1progress": {
+      "address": 1313,
+      "type": ">d8"
+    },
+    "lives": {
+      "address": 1433,
+      "type": "|i1"
+    },
+    "score": {
+      "address": 1427,
+      "type": "<u3"
+    }
+  }
+}
