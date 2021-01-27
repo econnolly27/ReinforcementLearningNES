@@ -14,6 +14,8 @@ import torch.multiprocessing as _mp
 import shutil,csv,time
 from src.helpers import flag_get
 from datetime import datetime
+import numpy as np
+
 
 os.environ['OMP_NUM_THREADS'] = '1'
 os.environ['DISPLAY'] = ':1'
@@ -59,7 +61,7 @@ def train(opt):
         torch.manual_seed(123)
         print("not using cuda")
 
-    opt.saved_path = os.getcwd() + '/mario/a3c/' + opt.saved_path
+    opt.saved_path = os.getcwd() + '/donkeykong/a3c/' + opt.saved_path
 
 
     start_time = time.time()       
@@ -69,10 +71,6 @@ def train(opt):
     current_time = now.strftime("%H:%M:%S")
     print("Current Time =", current_time)
     start_time = time.time()
-
-    #if os.path.isdir(opt.log_path):
-     #   shutil.rmtree(opt.log_path)
-    #os.makedirs(opt.log_path)
 
     if not os.path.isdir(opt.saved_path):
         os.makedirs(opt.saved_path)
@@ -89,36 +87,12 @@ def train(opt):
 
     mp = _mp.get_context("spawn")
 
-    #env, num_states, num_actions = create_train_env(opt.world, opt.stage, opt.action_type)
-   
-   
-    #global_model = ActorCritic(num_states, num_actions)
-
     global_model = ActorCritic(envs.num_states, envs.num_actions)
     if torch.cuda.is_available():
         global_model.cuda()
     global_model.share_memory()
     optimizer = torch.optim.Adam(global_model.parameters(), lr=opt.lr)
 
-    # Start test/evaluation model
-    #if TEST_ON_THE_GO:
-        # evaluate(opt, model, envs.num_states, envs.num_actions)
-        #mp = _mp.get_context("spawn")
-        #process = mp.Process(target=evaluate, args=(opt, model, envs.num_states, envs.num_actions))
-        #process.start()
-
-    if opt.load_from_previous_stage:
-        if opt.stage == 1:
-            previous_world = opt.world - 1
-            previous_stage = 4
-        else:
-            previous_world = opt.world
-            previous_stage = opt.stage - 1
-        file_ = "{}/a3c_super_mario_bros_{}_{}".format(opt.saved_path, previous_world, previous_stage)
-        if os.path.isfile(file_):
-            global_model.load_state_dict(torch.load(file_))
-
-    #optimizer = GlobalAdam(global_model.parameters(), lr=opt.lr)
     processes = []
     for index in range(opt.num_processes):
         if index == 0:
@@ -131,17 +105,7 @@ def train(opt):
     process.start()
     processes.append(process)
     for process in processes:
-        process.join()
-
-    with open(savefile, 'a', newline='') as sfile:
-        writer = csv.writer(sfile)
-        writer.writerows([data])
-    elapsed_time = time.time() - start_time
-    print(elapsed_time)
-    #print("Steps: {}. Total loss: {}. Time elapsed: {}".format(tot_steps, total_loss,time.strftime("%H:%M:%S", time.gmtime(elapsed_time))))
-    #if check_flag(info):
-    #    print("Stage finished")
-
+       process.join()
 
 if __name__ == "__main__":
     opt = get_args()

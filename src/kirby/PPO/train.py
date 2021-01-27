@@ -17,7 +17,7 @@ import torch.nn.functional as F
 import numpy as np
 import shutil, csv, time
 from src.helpers import flag_get
-from src.helpers import _is_stage_over
+#from src.helpers import _is_stage_over
 from datetime import datetime
 
 os.environ['OMP_NUM_THREADS'] = '1'
@@ -30,8 +30,8 @@ def get_args():
         """Implementation of model described in the paper: Proximal Policy Optimization Algorithms for Super Mario Bros""")
     parser.add_argument("--world", type=int, default=1)
     parser.add_argument("--stage", type=int, default=1)
-    parser.add_argument("--action_type", type=str, default="simple")
-    parser.add_argument('--lr', type=float, default=1e-4)
+    parser.add_argument("--action_type", type=str, default="complex")
+    parser.add_argument('--lr', type=float, default=7e-5)
     parser.add_argument('--gamma', type=float, default=0.9, help='discount factor for rewards')
     parser.add_argument('--tau', type=float, default=1.0, help='parameter for GAE')
     parser.add_argument('--beta', type=float, default=0.01, help='entropy coefficient')
@@ -52,9 +52,10 @@ def get_args():
 def check_flag(info):
     out = 0
     for i in info:
-        #print(info)
+        #print(i)
         if flag_get(i):
             out += 1
+
     return out
 
 
@@ -66,7 +67,7 @@ def train(opt):
         torch.manual_seed(123)
         print("not using cuda")
     
-    opt.saved_path = os.getcwd() + '/mario/PPO/' + opt.saved_path
+    opt.saved_path = os.getcwd() + '/kirby/PPO/' + opt.saved_path
     # if os.path.isdir(opt.log_path):
     #     shutil.rmtree(opt.log_path)Miles Jupp
     

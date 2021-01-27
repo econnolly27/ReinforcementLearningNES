@@ -59,7 +59,7 @@ def train(opt):
         torch.manual_seed(123)
         print("not using cuda")
 
-    opt.saved_path = os.getcwd() + '/mario/a3c/' + opt.saved_path
+    opt.saved_path = os.getcwd() + '/kirby/a3c/' + opt.saved_path
 
 
     start_time = time.time()       
