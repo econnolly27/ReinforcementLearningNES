@@ -15,11 +15,13 @@
   * `conda install -c conda-forge scikit-image scikit-plot`
   * `conda install scipy scikit-image scikit-learn pillow pandas numpy matplotlib imageio`
   * `pip3 install opencv-python`
-  * `pip3 install gym-retro==0.8.0` (If you get an error about there will be errors after 2020 while updating or installing packages, just ignore it)
-
+  * `pip3 install gym-retro==0.8.0` (If you get an error about there will be errors after 2020 while updating or installing packages, just ignore i
+  * `pip install tensorboardx`
 ## Extra notes
 
 * Create environment.yml: `conda env export > environment.yml`
 * Create env from file: `conda env create -f environment.yml`
 * Activate env: `conda activate mariobm`
 * ROMS: http://nesninja.com/public/GoodNES_3.14_goodmerged/nes/
+* Check GPU usage: `watch nvidia-smi`
+
