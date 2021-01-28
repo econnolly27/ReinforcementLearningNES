@@ -29,7 +29,7 @@ def get_args():
     parser.add_argument("--world", type=int, default=1)
     parser.add_argument("--stage", type=int, default=1)
     parser.add_argument("--action_type", type=str, default="complex")
-    parser.add_argument('--lr', type=float, default=1e-4)
+    parser.add_argument('--lr', type=float, default=7e-5)
     parser.add_argument('--gamma', type=float, default=0.9, help='discount factor for rewards')
     parser.add_argument('--tau', type=float, default=1.0, help='parameter for GAE')
     parser.add_argument('--beta', type=float, default=0.01, help='entropy coefficient')
@@ -40,8 +40,8 @@ def get_args():
     parser.add_argument("--num_global_steps", type=int, default=5e6)
     parser.add_argument("--num_processes", type=int, default=8, help="Number of concurrent processes, has to be larger than 1")
     parser.add_argument("--save_interval", type=int, default=50, help="Number of steps between savings")
-    parser.add_argument("--max_actions", type=int, default=200, help="Maximum repetition steps in test phase")
-    parser.add_argument("--log_path", type=str, default="tensorboard/ppo_super_mario_bros")
+    parser.add_argument("--max_actions", type=int, default=100, help="Maximum repetition steps in test phase")
+    parser.add_argument("--log_path", type=str, default="tensorboard/ppo_pacman_")
     parser.add_argument("--saved_path", type=str, default="trained_models")
     args = parser.parse_args()
     return args
@@ -123,8 +123,8 @@ def train(opt):
     while True:
         # Save model each loop
         if tot_loops % opt.save_interval == 0 and tot_loops > 0:
-            torch.save(model.state_dict(), "{}/PPO_super_mario_bros_{}_{}".format("trained_models", opt.world, opt.stage))
-            torch.save(model.state_dict(), "{}/PPO_super_mario_bros_{}_{}_{}".format("trained_models", opt.world, opt.stage, tot_loops))
+            torch.save(model.state_dict(), "{}/PPO_pacman_{}_{}".format("trained_models", opt.world, opt.stage))
+            torch.save(model.state_dict(), "{}/PPO_pacman_{}_{}_{}".format("trained_models", opt.world, opt.stage, tot_loops))
 
 
         # Accumulate evidence
