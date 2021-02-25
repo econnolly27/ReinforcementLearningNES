@@ -18,7 +18,7 @@ from src.retrowrapper import RetroWrapper
 
 SCRIPT_DIR = os.getcwd() #os.path.dirname(os.path.abspath(__file__))
 ENV_NAME = 'SMB-JU'
-LVL_ID = 'Level3-1'
+LVL_ID = 'Level1-1'
 
 class Monitor:
     def __init__(self, width, height, saved_path):
@@ -75,35 +75,37 @@ class CustomReward(Wrapper):
 class CustomSkipFrame(Wrapper):
     def __init__(self, env, skip=4):
         super(CustomSkipFrame, self).__init__(env)
-        self.observation_space = Box(low=0, high=255, shape=(4, 84, 84))
+        self.observation_space = Box(low=0, high=255, shape=(skip, 84, 84))
         self.skip = skip
+        self.states = np.zeros((skip, 84, 84), dtype=np.float32)
 
     def step(self, action):
         total_reward = 0
-        states = []
-        state, reward, done, info = self.env.step(action)
+        last_states = []
         for i in range(self.skip):
-            if not done:
-                state, reward, done, info = self.env.step(action)
-                total_reward += reward
-                states.append(state)
-            else:
-                states.append(state)
-        states = np.concatenate(states, 0)[None, :, :, :]
-        return states.astype(np.float32), reward, done, info
+            state, reward, done, info = self.env.step(action)
+            total_reward += reward
+            if i >= self.skip / 2:
+                last_states.append(state)
+            if done:
+                self.reset()
+                return self.states[None, :, :, :].astype(np.float32), total_reward, done, info
+        max_state = np.max(np.concatenate(last_states, 0), 0)
+        self.states[:-1] = self.states[1:]
+        self.states[-1] = max_state
+        return self.states[None, :, :, :].astype(np.float32), total_reward, done, info
 
     def reset(self):
         state = self.env.reset()
-        states = np.concatenate([state for _ in range(self.skip)], 0)[None, :, :, :]
-        return states.astype(np.float32)
-
+        self.states = np.concatenate([state for _ in range(self.skip)], 0)
+        return self.states[None, :, :, :].astype(np.float32)
 
 def create_train_env(actions, output_path=None, mp_wrapper=True):
     #env = gym_super_mario_bros.make("SuperMarioBros-{}-{}-v0".format(world, stage))
     
     retro.data.Integrations.add_custom_path(os.path.join(SCRIPT_DIR, "retro_integration"))
-    print(retro.data.list_games(inttype=retro.data.Integrations.CUSTOM_ONLY))
-    print(ENV_NAME in retro.data.list_games(inttype=retro.data.Integrations.CUSTOM_ONLY))
+   # print(retro.data.list_games(inttype=retro.data.Integrations.CUSTOM_ONLY))
+    #print(ENV_NAME in retro.data.list_games(inttype=retro.data.Integrations.CUSTOM_ONLY))
     obs_type = retro.Observations.IMAGE # or retro.Observations.RAM
     
     if mp_wrapper:
@@ -138,23 +140,3 @@ class MultipleEnvironments:
         self.num_states = self.envs[0].observation_space.shape[0]
         self.num_actions = len(actions)
         self.num_envs = len(self.envs)
-
-        # for index in range(num_envs):
-        #     process = mp.Process(target=self.run, args=(index,))
-        #     process.start()
-        #     self.env_conns[index].close()
-
-    # def run(self, index, actions=None, output_path=None):
-    #     if actions is not None:
-    #         env = create_train_env(actions, output_path=output_path)
-    #         self.envs.append(env)
-    #     else:
-    #         self.agent_conns[index].close()
-    #         while True:
-    #             request, action = self.env_conns[index].recv()
-    #             if request == "step":
-    #                 self.env_conns[index].send(self.envs[index].step(action.item()))
-    #             elif request == "reset":
-    #                 self.env_conns[index].send(self.envs[index].reset())
-    #             else:
-    #                 raise NotImplementedError

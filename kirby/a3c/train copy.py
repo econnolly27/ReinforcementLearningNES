@@ -36,7 +36,7 @@ def get_args():
     parser.add_argument("--num_processes", type=int, default=4)
     parser.add_argument("--save_interval", type=int, default=500, help="Number of steps between savings")
     parser.add_argument("--max_actions", type=int, default=200, help="Maximum repetition steps in test phase")
-    parser.add_argument("--log_path", type=str, default="tensorboard/a3c_super_mario_bros")
+    parser.add_argument("--log_path", type=str, default="tensorboard/a3c_kirby")
     parser.add_argument("--saved_path", type=str, default="trained_models")
     parser.add_argument("--load_from_previous_stage", type=bool, default=False,
                         help="Load weight from previous trained stage")
@@ -114,7 +114,7 @@ def train(opt):
         else:
             previous_world = opt.world
             previous_stage = opt.stage - 1
-        file_ = "{}/a3c_super_mario_bros_{}_{}".format(opt.saved_path, previous_world, previous_stage)
+        file_ = "{}/a3c_kirby_{}_{}".format(opt.saved_path, previous_world, previous_stage)
         if os.path.isfile(file_):
             global_model.load_state_dict(torch.load(file_))
 

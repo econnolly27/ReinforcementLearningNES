@@ -63,7 +63,7 @@ def evaluate(opt, global_model, num_states, num_actions):
             got_flag = 1
             done = True
             torch.save(local_model.state_dict(),
-                       "{}/ppo_super_mario_bros_{}".format(opt.saved_path, curr_step))
+                       "{}/ppo_kirby_{}".format(opt.saved_path, curr_step))
 
         env.render()
         actions.append(action)

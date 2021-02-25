@@ -5,11 +5,8 @@
 import os
 import gym
 import retro
-# import gym_super_mario_bros
 from gym.spaces import Box
 from gym import Wrapper
-# from nes_py.wrappers import JoypadSpace
-# from gym_super_mario_bros.actions import SIMPLE_MOVEMENT, COMPLEX_MOVEMENT, RIGHT_ONLY
 import cv2
 import numpy as np
 import subprocess as sp
@@ -102,8 +99,6 @@ class CustomSkipFrame(Wrapper):
 
 
 def create_train_env(actions, output_path=None, mp_wrapper=True):
-    # env = gym_super_mario_bros.make("SuperMarioBros-{}-{}-v0".format(world, stage))
-
     retro.data.Integrations.add_custom_path(os.path.join(SCRIPT_DIR, "retro_integration"))
     print(retro.data.list_games(inttype=retro.data.Integrations.CUSTOM_ONLY))
     print(ENV_NAME in retro.data.list_games(inttype=retro.data.Integrations.CUSTOM_ONLY))

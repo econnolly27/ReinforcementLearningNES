@@ -110,10 +110,11 @@ def create_train_env(actions, output_path=None, mp_wrapper=True):
     print(ENV_NAME in retro.data.list_games(inttype=retro.data.Integrations.CUSTOM_ONLY))
     obs_type = retro.Observations.IMAGE # or retro.Observations.RAM
 
-    if mp_wrapper:
-        env = RetroWrapper(ENV_NAME, state=LVL_ID, record=False, inttype=retro.data.Integrations.CUSTOM_ONLY, obs_type=obs_type)
-    else:
-        env = retro.make(ENV_NAME, LVL_ID, record=False, inttype=retro.data.Integrations.CUSTOM_ONLY, obs_type=obs_type)
+    #if mp_wrapper:
+       # env = RetroWrapper(ENV_NAME, state=LVL_ID, record=False, inttype=retro.data.Integrations.CUSTOM_ONLY, obs_type=obs_type)
+  #  else:
+    #    env = retro.make(ENV_NAME, LVL_ID, record=False, inttype=retro.data.Integrations.CUSTOM_ONLY, obs_type=obs_type)
+    env = RetroWrapper(ENV_NAME, state=LVL_ID, record=False, inttype=retro.data.Integrations.CUSTOM_ONLY, obs_type=obs_type)
 
     if output_path:
         monitor = Monitor(256, 240, output_path)
@@ -141,23 +142,3 @@ class MultipleEnvironments:
         self.num_states = self.envs[0].observation_space.shape[0]
         self.num_actions = len(actions)
         self.num_envs = len(self.envs)
-
-        # for index in range(num_envs):
-        #     process = mp.Process(target=self.run, args=(index,))
-        #     process.start()
-        #     self.env_conns[index].close()
-
-    # def run(self, index, actions=None, output_path=None):
-    #     if actions is not None:
-    #         env = create_train_env(actions, output_path=output_path)
-    #         self.envs.append(env)
-    #     else:
-    #         self.agent_conns[index].close()
-    #         while True:
-    #             request, action = self.env_conns[index].recv()
-    #             if request == "step":
-    #                 self.env_conns[index].send(self.envs[index].step(action.item()))
-    #             elif request == "reset":
-    #                 self.env_conns[index].send(self.envs[index].reset())
-    #             else:
-    #                 raise NotImplementedError

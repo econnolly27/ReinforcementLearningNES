@@ -40,8 +40,8 @@ def get_args():
     parser.add_argument("--num_global_steps", type=int, default=5e6)
     parser.add_argument("--num_processes", type=int, default=8, help="Number of concurrent processes, has to be larger than 1")
     parser.add_argument("--save_interval", type=int, default=50, help="Number of steps between savings")
-    parser.add_argument("--max_actions", type=int, default=200, help="Maximum repetition steps in test phase")
-    parser.add_argument("--log_path", type=str, default="tensorboard/ppo_super_mario_bros")
+    parser.add_argument("--max_actions", type=int, default=100, help="Maximum repetition steps in test phase")
+    parser.add_argument("--log_path", type=str, default="tensorboard/ppo_donkey_kong")
     parser.add_argument("--saved_path", type=str, default="trained_models")
     args = parser.parse_args()
     return args
@@ -123,8 +123,8 @@ def train(opt):
     while True:
         # Save model each loop
         if tot_loops % opt.save_interval == 0 and tot_loops > 0:
-            torch.save(model.state_dict(), "{}/PPO_super_mario_bros_{}_{}".format("trained_models", opt.world, opt.stage))
-            torch.save(model.state_dict(), "{}/PPO_super_mario_bros_{}_{}_{}".format("trained_models", opt.world, opt.stage, tot_loops))
+            torch.save(model.state_dict(), "{}/PPO_donkey_kong_{}_{}".format("trained_models", opt.world, opt.stage))
+            torch.save(model.state_dict(), "{}/PPO_donkey_kong_{}_{}_{}".format("trained_models", opt.world, opt.stage, tot_loops))
 
 
         # Accumulate evidence

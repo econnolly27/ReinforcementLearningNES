@@ -45,7 +45,7 @@ def local_train(index, opt, global_model, optimizer,num_states,num_actions, save
         if save:
             if curr_episode % opt.save_interval == 0 and curr_episode > 0:
                 torch.save(global_model.state_dict(),
-                           "{}/a3c_super_mario_bros_{}_{}".format(opt.saved_path, opt.world, opt.stage))
+                           "{}/a3c_kirby_{}_{}".format(opt.saved_path, opt.world, opt.stage))
             #print("Process {}. Episode {}".format(index, curr_episode))
         curr_episode += 1
 

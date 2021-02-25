@@ -39,10 +39,10 @@ def test(opt):
                            "{}/video_{}_{}.mp4".format(opt.output_path, opt.world, opt.stage))
     model = PPO(env.observation_space.shape[0], len(actions))
     if torch.cuda.is_available():
-        model.load_state_dict(torch.load("{}/ppo_super_mario_bros_{}_{}".format(opt.saved_path, opt.world, opt.stage)))
+        model.load_state_dict(torch.load("{}/ppo_donkey_kong_{}_{}".format(opt.saved_path, opt.world, opt.stage)))
         model.cuda()
     else:
-        model.load_state_dict(torch.load("{}/ppo_super_mario_bros_{}_{}".format(opt.saved_path, opt.world, opt.stage),
+        model.load_state_dict(torch.load("{}/ppo_donkey_kong_{}_{}".format(opt.saved_path, opt.world, opt.stage),
                                          map_location=lambda storage, loc: storage))
     model.eval()
     state = torch.from_numpy(env.reset())
