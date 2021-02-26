@@ -14,7 +14,7 @@ import numpy as np
 import subprocess as sp
 import torch.multiprocessing as mp
 from src.helpers import JoypadSpace, SIMPLE_MOVEMENT, COMPLEX_MOVEMENT, RIGHT_ONLY, flag_get
-from src.retrowrapper import RetroWrapper
+#from src.retrowrapper import RetroWrapper
 
 SCRIPT_DIR = os.getcwd() #os.path.dirname(os.path.abspath(__file__))
 ENV_NAME = 'SMB-JU'
@@ -61,7 +61,7 @@ class CustomReward(Wrapper):
         reward += (info["score"] - self.curr_score) / 40.
         self.curr_score = info["score"]
         if done:
-            if flag_get(info):                #info["flag_get"]:
+            if flag_get(info):
                 reward += 50
             else:
                 reward -= 50
@@ -75,68 +75,53 @@ class CustomReward(Wrapper):
 class CustomSkipFrame(Wrapper):
     def __init__(self, env, skip=4):
         super(CustomSkipFrame, self).__init__(env)
-        self.observation_space = Box(low=0, high=255, shape=(skip, 84, 84))
+        self.observation_space = Box(low=0, high=255, shape=(4, 84, 84))
         self.skip = skip
-        self.states = np.zeros((skip, 84, 84), dtype=np.float32)
 
     def step(self, action):
         total_reward = 0
-        last_states = []
+        states = []
+        state, reward, done, info = self.env.step(action)
         for i in range(self.skip):
-            state, reward, done, info = self.env.step(action)
-            total_reward += reward
-            if i >= self.skip / 2:
-                last_states.append(state)
-            if done:
-                self.reset()
-                return self.states[None, :, :, :].astype(np.float32), total_reward, done, info
-        max_state = np.max(np.concatenate(last_states, 0), 0)
-        self.states[:-1] = self.states[1:]
-        self.states[-1] = max_state
-        return self.states[None, :, :, :].astype(np.float32), total_reward, done, info
+            if not done:
+                state, reward, done, info = self.env.step(action)
+                total_reward += reward
+                states.append(state)
+            else:
+                states.append(state)
+
+        states = np.concatenate(states, 0)[None, :, :, :]
+        return states.astype(np.float32), reward, done, info
 
     def reset(self):
         state = self.env.reset()
-        self.states = np.concatenate([state for _ in range(self.skip)], 0)
-        return self.states[None, :, :, :].astype(np.float32)
+        states = np.concatenate([state for _ in range(self.skip)], 0)[None, :, :, :]
+        return states.astype(np.float32)
 
-def create_train_env(actions, output_path=None, mp_wrapper=True):
+
+def create_train_env(action_type, output_path=None):
     #env = gym_super_mario_bros.make("SuperMarioBros-{}-{}-v0".format(world, stage))
     
     retro.data.Integrations.add_custom_path(os.path.join(SCRIPT_DIR, "retro_integration"))
-   # print(retro.data.list_games(inttype=retro.data.Integrations.CUSTOM_ONLY))
-    #print(ENV_NAME in retro.data.list_games(inttype=retro.data.Integrations.CUSTOM_ONLY))
+    print(retro.data.list_games(inttype=retro.data.Integrations.CUSTOM_ONLY))
+    print(ENV_NAME in retro.data.list_games(inttype=retro.data.Integrations.CUSTOM_ONLY))
     obs_type = retro.Observations.IMAGE # or retro.Observations.RAM
-    
-    if mp_wrapper:
-        env = RetroWrapper(ENV_NAME, state=LVL_ID, record=False, inttype=retro.data.Integrations.CUSTOM_ONLY, obs_type=obs_type)
-    else:
-        env = retro.make(ENV_NAME, LVL_ID, record=False, inttype=retro.data.Integrations.CUSTOM_ONLY, obs_type=obs_type)
+
+    env = retro.make(ENV_NAME, LVL_ID, record=False, inttype=retro.data.Integrations.CUSTOM_ONLY, obs_type=obs_type)
 
     if output_path:
         monitor = Monitor(256, 240, output_path)
-        #monitor = Noneenv = JoypadSpace(env, actions)
-
     else:
         monitor = None
-    env=JoypadSpace(env,actions)
+
+    if action_type == "right":
+        actions = RIGHT_ONLY
+    elif action_type == "simple":
+        actions = SIMPLE_MOVEMENT
+    else:
+        actions = COMPLEX_MOVEMENT
+
+    env = JoypadSpace(env, actions)
     env = CustomReward(env, monitor)
     env = CustomSkipFrame(env)
-
-    return env
-
-class MultipleEnvironments:
-    def __init__(self, world, stage, action_type, num_envs, output_path=None):
-        if action_type == "right":
-            actions = RIGHT_ONLY
-        elif action_type == "simple":
-            actions = SIMPLE_MOVEMENT
-        else:
-            actions = COMPLEX_MOVEMENT
-
-        # self.envs = create_train_env(actions, output_path=output_path)
-        self.envs = [create_train_env(actions, output_path=output_path) for _ in range(num_envs)]
-        
-        self.num_states = self.envs[0].observation_space.shape[0]
-        self.num_actions = len(actions)
-        self.num_envs = len(self.envs)
+    return env, env.observation_space.shape[0], len(actions)

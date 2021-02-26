@@ -34,7 +34,7 @@ def get_args():
         """Implementation of model described in the paper: Proximal Policy Optimization Algorithms for Super Mario Bros""")
     parser.add_argument("--world", type=int, default=1)
     parser.add_argument("--stage", type=int, default=1)
-    parser.add_argument("--action_type", type=str, default="simple")
+    parser.add_argument("--action_type", type=str, default="complex")
     parser.add_argument('--lr', type=float, default=1e-4)
     parser.add_argument('--gamma', type=float, default=0.9,
                         help='discount factor for rewards')
