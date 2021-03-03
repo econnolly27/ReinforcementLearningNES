@@ -4,7 +4,6 @@
 import os
 import argparse
 import torch
-#from src.env import MultipleEnvironments
 from src.env import create_train_env
 from src.model import ActorCritic
 from src.optimizer import GlobalAdam
@@ -21,9 +20,10 @@ os.environ['OMP_NUM_THREADS'] = '1'
 os.environ['DISPLAY'] = ':1'
 
 def get_args():
+    timestr = time.strftime("%Y%m%d-%H%M%S")
     parser = argparse.ArgumentParser(
         """Implementation of model described in the paper: Asynchronous Methods for Deep Reinforcement Learning for Super Mario Bros""")
-    parser.add_argument("--world", type=int, default=1)
+    parser.add_argument("--world", type=int, default=3)
     parser.add_argument("--stage", type=int, default=1)
     parser.add_argument("--action_type", type=str, default="complex")
     parser.add_argument('--lr', type=float, default=1e-4)
@@ -36,7 +36,8 @@ def get_args():
     parser.add_argument("--save_interval", type=int, default=500, help="Number of steps between savings")
     parser.add_argument("--max_actions", type=int, default=200, help="Maximum repetition steps in test phase")
     parser.add_argument("--log_path", type=str, default="tensorboard/a3c_super_mario_bros")
-    parser.add_argument("--saved_path", type=str, default="trained_models")
+    parser.add_argument("--timestr", type=str, default=timestr)
+    parser.add_argument("--saved_path", type=str, default="trained_models/"+ timestr)
     parser.add_argument("--load_from_previous_stage", type=bool, default=False,
                         help="Load weight from previous trained stage")
     parser.add_argument("--use_gpu", type=bool, default=True)
@@ -77,16 +78,9 @@ def train(opt):
     if not os.path.isdir(opt.saved_path):
         os.makedirs(opt.saved_path)
 
-    savefile = opt.saved_path + '/a3c_train.csv'
-    print(savefile)
-    title = ['Loops', 'Steps', 'Time', 'AvgLoss', 'MeanReward', "StdReward", "TotalReward", "Flags"]
-    with open(savefile, 'w', newline='') as sfile:
-        writer = csv.writer(sfile)
-        writer.writerow(title)
-
     mp = _mp.get_context("spawn")
 
-    env, num_states, num_actions = create_train_env(opt.action_type)
+    env, num_states, num_actions = create_train_env(opt.world, opt.stage,opt.action_type)
    
     global_model = ActorCritic(num_states, num_actions)
     if torch.cuda.is_available():

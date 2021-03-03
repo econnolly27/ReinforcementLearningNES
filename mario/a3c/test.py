@@ -9,7 +9,9 @@ import argparse
 import torch
 from src.env import create_train_env
 from src.model import ActorCritic
+from src.helpers import flag_get
 import torch.nn.functional as F
+os.environ['DISPLAY'] = ':1'
 
 
 def get_args():
@@ -26,8 +28,9 @@ def get_args():
 
 def test(opt):
     torch.manual_seed(123)
-    env, num_states, num_actions = create_train_env(opt.world, opt.stage, opt.action_type,
-                                                    "{}/video_{}_{}.mp4".format(opt.output_path, opt.world, opt.stage))
+    
+    opt.saved_path = os.getcwd() + '/mario/a3c/' + opt.saved_path
+    env, num_states, num_actions = create_train_env(opt.world, opt.stage, opt.action_type)
     model = ActorCritic(num_states, num_actions)
     if torch.cuda.is_available():
         model.load_state_dict(torch.load("{}/a3c_super_mario_bros_{}_{}".format(opt.saved_path, opt.world, opt.stage)))
@@ -58,7 +61,7 @@ def test(opt):
         state, reward, done, info = env.step(action)
         state = torch.from_numpy(state)
         env.render()
-        if info["flag_get"]:
+        if flag_get(info):
             print("World {} stage {} completed".format(opt.world, opt.stage))
             break
 

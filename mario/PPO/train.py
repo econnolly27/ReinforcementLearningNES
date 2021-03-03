@@ -50,7 +50,7 @@ def get_args():
     parser.add_argument("--num_global_steps", type=int, default=5e6)
     parser.add_argument("--num_processes", type=int, default=8,
                         help="Number of concurrent processes, has to be larger than 1")
-    parser.add_argument("--save_interval", type=int, default=50,
+    parser.add_argument("--save_interval", type=int, default=5,
                         help="Number of steps between savings")
     parser.add_argument("--max_actions", type=int, default=200,
                         help="Maximum repetition steps in test phase")
@@ -135,8 +135,8 @@ def train(opt):
         # Save model each loop
         if tot_loops % opt.save_interval == 0 and tot_loops > 0:
             torch.save(model.state_dict(
-            ), "{}PPO_super_mario_bros_{}_{}".format(opt.saved_path, opt.world, opt.stage))
-            torch.save(model.state_dict(), "{}PPO_super_mario_bros_{}_{}_{}".format(
+            ), "{}/PPO_super_mario_bros_{}_{}".format(opt.saved_path, opt.world, opt.stage))
+            torch.save(model.state_dict(), "{}/PPO_super_mario_bros_{}_{}_{}".format(
                 opt.saved_path, opt.world, opt.stage, tot_loops))
 
         # Accumulate evidence

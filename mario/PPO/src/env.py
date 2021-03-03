@@ -19,7 +19,6 @@ from src.retrowrapper import RetroWrapper
 
 SCRIPT_DIR = os.getcwd() #os.path.dirname(os.path.abspath(__file__))
 ENV_NAME = 'SMB-JU'
-LVL_ID = 'Level1-1'
 
 class Monitor:
     def __init__(self, width, height, saved_path):
@@ -102,19 +101,18 @@ class CustomSkipFrame(Wrapper):
         return self.states[None, :, :, :].astype(np.float32)
 
 
-def create_train_env(actions, output_path=None, mp_wrapper=True):
+def create_train_env(world,stage,actions, output_path=None, mp_wrapper=True):
     # env = gym_super_mario_bros.make("SuperMarioBros-{}-{}-v0".format(world, stage))
 
     retro.data.Integrations.add_custom_path(os.path.join(SCRIPT_DIR, "retro_integration"))
     print(retro.data.list_games(inttype=retro.data.Integrations.CUSTOM_ONLY))
     print(ENV_NAME in retro.data.list_games(inttype=retro.data.Integrations.CUSTOM_ONLY))
     obs_type = retro.Observations.IMAGE # or retro.Observations.RAM
-
-    #if mp_wrapper:
-       # env = RetroWrapper(ENV_NAME, state=LVL_ID, record=False, inttype=retro.data.Integrations.CUSTOM_ONLY, obs_type=obs_type)
-  #  else:
-    #    env = retro.make(ENV_NAME, LVL_ID, record=False, inttype=retro.data.Integrations.CUSTOM_ONLY, obs_type=obs_type)
-    env = RetroWrapper(ENV_NAME, state=LVL_ID, record=False, inttype=retro.data.Integrations.CUSTOM_ONLY, obs_type=obs_type)
+    LVL_ID = 'Level{}-{}'.format(world,stage)
+    if mp_wrapper:
+        env = RetroWrapper(ENV_NAME, state=LVL_ID, record=False, inttype=retro.data.Integrations.CUSTOM_ONLY, obs_type=obs_type)
+    else:
+        env = retro.make(ENV_NAME, LVL_ID, record=False, inttype=retro.data.Integrations.CUSTOM_ONLY, obs_type=obs_type)
 
     if output_path:
         monitor = Monitor(256, 240, output_path)
@@ -137,7 +135,7 @@ class MultipleEnvironments:
             actions = COMPLEX_MOVEMENT
 
         # self.envs = create_train_env(actions, output_path=output_path)
-        self.envs = [create_train_env(actions, output_path=output_path) for _ in range(num_envs)]
+        self.envs = [create_train_env(world,stage,actions, output_path=output_path) for _ in range(num_envs)]
         
         self.num_states = self.envs[0].observation_space.shape[0]
         self.num_actions = len(actions)

@@ -22,14 +22,14 @@ def local_train(index, opt, global_model, optimizer, save=False):
     #print("yeah")
     writer = SummaryWriter(opt.log_path)
 
-    savefile = opt.saved_path + '/A3C_train.csv'
+    savefile = opt.saved_path + '/A3C_train' + opt.timestr + '.csv'
     #print(savefile)
     title = ['Steps', 'Time', 'TotalReward', "Flag"]
     with open(savefile, 'w', newline='') as sfile:
         csvwriter = csv.writer(sfile)
         csvwriter.writerow(title)
 
-    env, num_states, num_actions = create_train_env(opt.action_type)
+    env, num_states, num_actions = create_train_env(opt.world, opt.stage,opt.action_type)
     local_model = ActorCritic(num_states, num_actions)
     if opt.use_gpu:
         local_model.cuda()
@@ -49,6 +49,7 @@ def local_train(index, opt, global_model, optimizer, save=False):
             if curr_episode % opt.save_interval == 0 and curr_episode > 0:
                 torch.save(global_model.state_dict(),
                            "{}/a3c_super_mario_bros_{}_{}".format(opt.saved_path, opt.world, opt.stage))
+                torch.save(global_model.state_dict(),"{}/a3c_super_mario_bros_{}_{}_{}".format(opt.saved_path, opt.world, opt.stage,curr_episode))
             print("Process {}. Episode {}".format(index, curr_episode))
         curr_episode += 1
         local_model.load_state_dict(global_model.state_dict())
@@ -133,7 +134,7 @@ def local_train(index, opt, global_model, optimizer, save=False):
             global_param._grad = local_param.grad
         if done:
             ep_time = time.time() - start_time
-            data = [curr_episode, "{:.4f}".format(ep_time), "{:.2f}".format(tot_reward), got_flag]
+            data = [curr_episode, "{:.4f}".format(ep_time), "{:.2f}".format(reward), got_flag]
             with open(savefile, 'a', newline='') as sfile:
                 csvwriter = csv.writer(sfile)
                 csvwriter.writerows([data])
@@ -153,14 +154,14 @@ def local_test(index, opt, global_model):
     start_time = time.time()
 
     writer = SummaryWriter(opt.log_path)
-    savefile = opt.saved_path + '/A3C_test.csv'
+    savefile = opt.saved_path + '/A3C_test' + opt.timestr +  '.csv'
     #print(savefile)
     title = ['Steps', 'Time', 'TotalReward', "Flag"]
     with open(savefile, 'w', newline='') as sfile:
         csvwriter = csv.writer(sfile)
         csvwriter.writerow(title)
 
-    env, num_states, num_actions = create_train_env(opt.action_type)
+    env, num_states, num_actions = create_train_env(opt.world, opt.stage,opt.action_type)
     local_model = ActorCritic(num_states, num_actions)
     local_model.eval()
     state = torch.from_numpy(env.reset())
@@ -200,7 +201,7 @@ def local_test(index, opt, global_model):
         if done:
             ep_time = time.time() - start_time
             curr_step = 0
-            data = [tot_step, "{:.4f}".format(ep_time), "{:.2f}".format(tot_reward), got_flag]
+            data = [tot_step, "{:.4f}".format(ep_time), "{:.2f}".format(reward), got_flag]
             with open(savefile, 'a', newline='') as sfile:
                 csvwriter = csv.writer(sfile)
                 csvwriter.writerows([data])

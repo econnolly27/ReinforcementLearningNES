@@ -29,7 +29,7 @@ def evaluate(opt, global_model, num_states, num_actions):
         writer = csv.writer(sfile)
         writer.writerow(title)
 
-    env = create_train_env(actions, mp_wrapper=False)
+    env = create_train_env(opt.world,opt.stage,actions, mp_wrapper=False)
     local_model = PPO(num_states, num_actions)
     if torch.cuda.is_available():
         local_model.cuda()

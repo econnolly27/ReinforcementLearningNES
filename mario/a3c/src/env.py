@@ -18,7 +18,6 @@ from src.helpers import JoypadSpace, SIMPLE_MOVEMENT, COMPLEX_MOVEMENT, RIGHT_ON
 
 SCRIPT_DIR = os.getcwd() #os.path.dirname(os.path.abspath(__file__))
 ENV_NAME = 'SMB-JU'
-LVL_ID = 'Level1-1'
 
 class Monitor:
     def __init__(self, width, height, saved_path):
@@ -99,13 +98,15 @@ class CustomSkipFrame(Wrapper):
         return states.astype(np.float32)
 
 
-def create_train_env(action_type, output_path=None):
+def create_train_env(world,stage,action_type, output_path=None):
     #env = gym_super_mario_bros.make("SuperMarioBros-{}-{}-v0".format(world, stage))
     
     retro.data.Integrations.add_custom_path(os.path.join(SCRIPT_DIR, "retro_integration"))
     print(retro.data.list_games(inttype=retro.data.Integrations.CUSTOM_ONLY))
     print(ENV_NAME in retro.data.list_games(inttype=retro.data.Integrations.CUSTOM_ONLY))
     obs_type = retro.Observations.IMAGE # or retro.Observations.RAM
+    
+    LVL_ID = 'Level{}-{}'.format(world,stage)
 
     env = retro.make(ENV_NAME, LVL_ID, record=False, inttype=retro.data.Integrations.CUSTOM_ONLY, obs_type=obs_type)
 
