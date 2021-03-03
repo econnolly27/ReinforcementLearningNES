@@ -8,7 +8,7 @@ from src.model import ActorCritic
 import torch.nn.functional as F
 from torch.distributions import Categorical
 from collections import deque
-from tensorboardX import SummaryWriter
+#from tensorboardX import SummaryWriter
 import timeit
 from src.helpers import SIMPLE_MOVEMENT, COMPLEX_MOVEMENT, RIGHT_ONLY, flag_get
 import csv
@@ -20,7 +20,7 @@ def local_train(index, opt, global_model, optimizer, save=False):
 
     #savefile = opt.saved_path + '/a3c_train.csv'
     #print("yeah")
-    writer = SummaryWriter(opt.log_path)
+    #writer = SummaryWriter(opt.log_path)
 
     savefile = opt.saved_path + '/A3C_train' + opt.timestr + '.csv'
     #print(savefile)
@@ -124,7 +124,7 @@ def local_train(index, opt, global_model, optimizer, save=False):
             entropy_loss = entropy_loss + entropy
 
         total_loss = -actor_loss + critic_loss - opt.beta * entropy_loss
-        writer.add_scalar("Train_{}/Loss".format(index), total_loss, curr_episode)
+       # writer.add_scalar("Train_{}/Loss".format(index), total_loss, curr_episode)
         optimizer.zero_grad()
         total_loss.backward()
 
@@ -153,7 +153,7 @@ def local_test(index, opt, global_model):
     torch.manual_seed(123 + index)
     start_time = time.time()
 
-    writer = SummaryWriter(opt.log_path)
+    #writer = SummaryWriter(opt.log_path)
     savefile = opt.saved_path + '/A3C_test' + opt.timestr +  '.csv'
     #print(savefile)
     title = ['Steps', 'Time', 'TotalReward', "Flag"]

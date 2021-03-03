@@ -33,7 +33,7 @@ def get_args():
     parser.add_argument("--num_local_steps", type=int, default=50)
     parser.add_argument("--num_global_steps", type=int, default=5e6)
     parser.add_argument("--num_processes", type=int, default=4)
-    parser.add_argument("--save_interval", type=int, default=500, help="Number of steps between savings")
+    parser.add_argument("--save_interval", type=int, default=1000, help="Number of steps between savings")
     parser.add_argument("--max_actions", type=int, default=200, help="Maximum repetition steps in test phase")
     parser.add_argument("--log_path", type=str, default="tensorboard/a3c_super_mario_bros")
     parser.add_argument("--timestr", type=str, default=timestr)

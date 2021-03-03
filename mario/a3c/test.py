@@ -33,7 +33,9 @@ def test(opt):
     env, num_states, num_actions = create_train_env(opt.world, opt.stage, opt.action_type)
     model = ActorCritic(num_states, num_actions)
     if torch.cuda.is_available():
-        model.load_state_dict(torch.load("{}/a3c_super_mario_bros_{}_{}".format(opt.saved_path, opt.world, opt.stage)))
+        #model.load_state_dict(torch.load("{}/a3c_super_mario_bros_{}_{}".format(opt.saved_path, opt.world, opt.stage)))
+
+        model.load_state_dict(torch.load("{}/a3c_super_mario_bros_{}_{}".format(opt.saved_path, 1, 1)))
         model.cuda()
     else:
         model.load_state_dict(torch.load("{}/a3c_super_mario_bros_{}_{}".format(opt.saved_path, opt.world, opt.stage),
