@@ -48,9 +48,9 @@ def get_args():
     parser.add_argument('--num_epochs', type=int, default=10)
     parser.add_argument("--num_local_steps", type=int, default=512)
     parser.add_argument("--num_global_steps", type=int, default=5e6)
-    parser.add_argument("--num_processes", type=int, default=8,
+    parser.add_argument("--num_processes", type=int, default=4,
                         help="Number of concurrent processes, has to be larger than 1")
-    parser.add_argument("--save_interval", type=int, default=5,
+    parser.add_argument("--save_interval", type=int, default=50,
                         help="Number of steps between savings")
     parser.add_argument("--max_actions", type=int, default=200,
                         help="Maximum repetition steps in test phase")
@@ -72,11 +72,12 @@ def check_flag(info):
 
 
 def train(opt):
+    seed = 123
     if torch.cuda.is_available():
-        torch.cuda.manual_seed(123)
+        torch.cuda.manual_seed(seed)
         print("using cuda")
     else:
-        torch.manual_seed(123)
+        torch.manual_seed(seed)
         print("not using cuda")
 
     opt.saved_path = os.getcwd() + '/mario/PPO/' + opt.saved_path
@@ -253,8 +254,9 @@ def train(opt):
         print("Steps: {}. Total loss: {}. Time elapsed: {}".format(
             tot_steps, total_loss, time.strftime("%H:%M:%S", time.gmtime(elapsed_time))))
         if check_flag(info):
-            print("Stage finished")
-
+            torch.save(model.state_dict(),
+                       "{}/PPO_super_mario_bros_{}".format(opt.saved_path, tot_loops))
+            print("Got flag at time {} step {}".format(tot_steps,time.strftime("%H:%M:%S", time.gmtime(elapsed_time))))
 
 if __name__ == "__main__":
     opt = get_args()

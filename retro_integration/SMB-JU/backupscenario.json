@@ -9,7 +9,7 @@
   },
   "reward": {
     "variables": {
-      "score": {
+      "xscrollLo": {
         "reward": 1.0
       }
     }

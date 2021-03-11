@@ -62,8 +62,10 @@ def evaluate(opt, global_model, num_states, num_actions):
         if flag_get(info):
             got_flag = 1
             done = True
+            print("Got flag at time {} step {}".format(tot_step,time.strftime("%H:%M:%S", time.gmtime(time.time()))))
+
             torch.save(local_model.state_dict(),
-                       "{}/ppo_super_mario_bros_{}".format(opt.saved_path, curr_step))
+                       "{}/PPO_super_mario_bros_{}".format(opt.saved_path, curr_step))
 
         env.render()
         actions.append(action)

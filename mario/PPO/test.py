@@ -17,6 +17,8 @@ os.environ['OMP_NUM_THREADS'] = '1'
 def get_args():
     parser = argparse.ArgumentParser(
         """Implementation of model described in the paper: Proximal Policy Optimization Algorithms for Contra Nes""")
+    parser.add_argument("--model_world", type=int, default=1)
+    parser.add_argument("--model_stage", type=int, default=1)
     parser.add_argument("--world", type=int, default=1)
     parser.add_argument("--stage", type=int, default=1)
     parser.add_argument("--action_type", type=str, default="complex")
@@ -47,10 +49,10 @@ def test(opt):
     print(os.getcwd())
     if torch.cuda.is_available():
         #model.load_state_dict(torch.load("trained_models/abc"))
-        model.load_state_dict(torch.load("{}/PPO_super_mario_bros_{}_{}".format(opt.saved_path, opt.world, opt.stage)))
+        model.load_state_dict(torch.load("{}/PPO_super_mario_bros_{}_{}".format(opt.saved_path, opt.model_world, opt.model_stage)))
         model.cuda()
     else:
-        model.load_state_dict(torch.load("{}/PPO_super_mario_bros_{}_{}".format(opt.saved_path, opt.world, opt.stage),
+        model.load_state_dict(torch.load("{}/PPO_super_mario_bros_{}_{}".format(opt.saved_path, opt.model_world, opt.model_stage),
                                          map_location=lambda storage, loc: storage))
     model.eval()
     state = torch.from_numpy(env.reset())

@@ -23,7 +23,7 @@ def get_args():
     timestr = time.strftime("%Y%m%d-%H%M%S")
     parser = argparse.ArgumentParser(
         """Implementation of model described in the paper: Asynchronous Methods for Deep Reinforcement Learning for Super Mario Bros""")
-    parser.add_argument("--world", type=int, default=3)
+    parser.add_argument("--world", type=int, default=1)
     parser.add_argument("--stage", type=int, default=1)
     parser.add_argument("--action_type", type=str, default="complex")
     parser.add_argument('--lr', type=float, default=1e-4)
@@ -52,11 +52,12 @@ def check_flag(info):
     return out
 
 def train(opt):
+    seed = 123
     if torch.cuda.is_available():
-        torch.cuda.manual_seed(123)
+        torch.cuda.manual_seed(seed)
         print("using cuda")
     else:
-        torch.manual_seed(123)
+        torch.manual_seed(seed)
         print("not using cuda")
 
     opt.saved_path = os.getcwd() + '/mario/a3c/' + opt.saved_path
