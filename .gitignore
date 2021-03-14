@@ -144,3 +144,5 @@ src/baselines/PPO/trained_models/PPO_train.csv
 .VSCodeCounter
 requirements.txt
 *.png
+*.json
+*.pdf
