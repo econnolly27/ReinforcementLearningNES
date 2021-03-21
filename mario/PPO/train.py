@@ -93,7 +93,7 @@ def train(opt):
     print("Current Time =", current_time)
     start_time = time.time()
 
-    savefile = opt.saved_path + '/PPO_train' + opt.timestr + '.csv'
+    savefile = opt.saved_path + '/mario_PPO_train' + opt.timestr + '.csv'
     print(savefile)
     title = ['Loops', 'Steps', 'Time', 'AvgLoss',
              'MeanReward', "StdReward", "TotalReward", "Flags"]

@@ -17,10 +17,11 @@ import numpy as np
 import sys
 
 def local_train(index, opt, global_model, optimizer, save=False):
-    torch.manual_seed(123 + index)
+    seed=123
+    torch.manual_seed(seed)
     start_time = time.time()
 
-    savefile = opt.saved_path + '/a3c_train' + opt.timestr + '.csv'
+    savefile = opt.saved_path + '/mario_a3c_train' + opt.timestr + '.csv'
     title = ['Loops', 'Steps', 'Time', 'AvgLoss',
              'MeanReward', "StdReward", "TotalReward", "Flags"]
     with open(savefile, 'w', newline='') as sfile:
@@ -76,7 +77,7 @@ def local_train(index, opt, global_model, optimizer, save=False):
             m = Categorical(policy)
             action = m.sample().item()
 
-            state, reward, done, _ = env.step(action)
+            state, reward, done, info = env.step(action)
             #print(type(reward))
             state = torch.from_numpy(state)
             if opt.use_gpu:
@@ -126,13 +127,18 @@ def local_train(index, opt, global_model, optimizer, save=False):
         optimizer.zero_grad()
         total_loss.backward()
 
-        any_flags = 0
+
         ep_time = time.time() - start_time
 
         avg_loss = 0
         mean_reward=0
        #print(total_loss)
 
+        if flag_get(info):
+            got_flag = 1
+            print(info)
+            print("Got flag in training")
+            done = True
 
         for local_param, global_param in zip(local_model.parameters(), global_model.parameters()):
             if global_param.grad is not None:
@@ -154,7 +160,7 @@ def local_train(index, opt, global_model, optimizer, save=False):
         if curr_episode % 100 == 0:
 
             data = [curr_step, curr_episode, "{:.6f}".format(ep_time), "{:.4f}".format(avg_loss), "{:.4f}".format(
-            mean_reward), "{:.4f}".format(reward), "{:.2f}".format(reward), any_flags]
+            mean_reward), "{:.4f}".format(reward), "{:.2f}".format(reward), got_flag]
             
             with open(savefile, 'a', newline='') as sfile:
                 writer = csv.writer(sfile)
@@ -181,7 +187,8 @@ def local_train(index, opt, global_model, optimizer, save=False):
 
 
 def local_test(index, opt, global_model):
-    torch.manual_seed(123 + index)
+    seed=123
+    torch.manual_seed(seed)
     start_time = time.time()
 
     #writer = SummaryWriter(opt.log_path)
@@ -191,7 +198,7 @@ def local_test(index, opt, global_model):
    # with open(savefile, 'w', newline='') as sfile:
     #    writer = csv.writer(sfile)
      #   writer.writerow(title)
-    savefile = opt.saved_path + '/a3c_test' + opt.timestr + '.csv'
+    savefile = opt.saved_path + '/mario_a3c_test' + opt.timestr + '.csv'
     print(savefile)
     title = ['Steps', 'Time', 'TotalReward', "Flag"]
     with open(savefile, 'w', newline='') as sfile:
@@ -245,7 +252,7 @@ def local_test(index, opt, global_model):
 
         if done:
             ep_time = time.time() - start_time
-            data = [tot_step, "{:.4f}".format(ep_time), "{:.2f}".format(tot_reward), got_flag]
+            data = [index, "{:.4f}".format(ep_time), "{:.2f}".format(tot_reward), got_flag]
             with open(savefile, 'a', newline='') as sfile:
                 writer = csv.writer(sfile)
                 writer.writerows([data])

@@ -8,7 +8,7 @@ from src.model import PPO
 import torch.nn.functional as F
 from collections import deque
 import numpy as np
-from src.helpers import SIMPLE_MOVEMENT, COMPLEX_MOVEMENT, RIGHT_ONLY
+from src.helpers import SIMPLE_MOVEMENT, COMPLEX_MOVEMENT, RIGHT_ONLY, flag_get
 import csv, os
 import time
 
@@ -22,14 +22,14 @@ def evaluate(opt, global_model, num_states, num_actions):
     else:
         actions = COMPLEX_MOVEMENT
 
-    savefile = opt.saved_path + '/PPO_test.csv'
+    savefile = opt.saved_path + '/pacman_PPO_test' + opt.timestr + '.csv'
     print(savefile)
     title = ['Steps', 'Time', 'TotalReward', "Flag"]
     with open(savefile, 'w', newline='') as sfile:
         writer = csv.writer(sfile)
         writer.writerow(title)
 
-    env = create_train_env(actions, mp_wrapper=False)
+    env = create_train_env(opt.world,opt.stage,actions, mp_wrapper=False)
     local_model = PPO(num_states, num_actions)
     if torch.cuda.is_available():
         local_model.cuda()
@@ -44,7 +44,7 @@ def evaluate(opt, global_model, num_states, num_actions):
     tot_step = 0
     actions = deque(maxlen=opt.max_actions)
     tot_reward = 0
-    #got_flag = 0
+    got_flag = 0
     while True:
         start_time = time.time()
         curr_step += 1
@@ -59,11 +59,13 @@ def evaluate(opt, global_model, num_states, num_actions):
         tot_reward += reward
 
         # Uncomment following lines if you want to save model whenever level is completed
-      #  if flag_get(info):
-       #     got_flag = 1
-        #    done = True
-         #   torch.save(local_model.state_dict(),
-          #             "{}/ppo_super_mario_bros_{}".format(opt.saved_path, curr_step))
+        if flag_get(info):
+            got_flag = 1
+            done = True
+            print("Got flag at time {} step {}".format(tot_step,time.strftime("%H:%M:%S", time.gmtime(time.time()))))
+
+            torch.save(local_model.state_dict(),
+                       "{}/PPO_super_mario_bros_{}".format(opt.saved_path, curr_step))
 
         env.render()
         actions.append(action)
@@ -74,13 +76,13 @@ def evaluate(opt, global_model, num_states, num_actions):
         if done:
             # print("Evaluate: Done!")
             ep_time = time.time() - start_time
-            data = [tot_step, "{:.4f}".format(ep_time), "{:.2f}".format(tot_reward)]
+            data = [tot_step, "{:.4f}".format(ep_time), "{:.2f}".format(tot_reward), got_flag]
             with open(savefile, 'a', newline='') as sfile:
                 writer = csv.writer(sfile)
                 writer.writerows([data])
             
             curr_step = 0
-            #got_flag = 0
+            got_flag = 0
             tot_reward = 0
             actions.clear()
             # time.sleep(10) # Sleep for 10 secs

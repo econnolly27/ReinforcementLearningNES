@@ -66,6 +66,7 @@ def test(opt):
         env.render()
         if flag_get(info):
             print("World {} stage {} completed".format(opt.world, opt.stage))
+            print(info)
             break
 
 
