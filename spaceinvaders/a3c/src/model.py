@@ -28,13 +28,13 @@ class ActorCritic(nn.Module):
                 nn.init.constant_(module.bias_ih, 0)
                 nn.init.constant_(module.bias_hh, 0)
 
-    def forward(self, x, hx, cx,one=None,two=None):
+    def forward(self, x, hx, cx):
         x = F.relu(self.conv1(x))
         x = F.relu(self.conv2(x))
         x = F.relu(self.conv3(x))
         x = F.relu(self.conv4(x))
         hx, cx = self.lstm(x.view(x.size(0), -1), (hx, cx))
-        return self.actor_linear(hx), self.critic_linear(hx), hx, cx,one,two
+        return self.actor_linear(hx), self.critic_linear(hx), hx, cx
 
 
 

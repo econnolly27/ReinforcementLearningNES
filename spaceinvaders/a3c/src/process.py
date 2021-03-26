@@ -8,28 +8,27 @@ from src.model import ActorCritic
 import torch.nn.functional as F
 from torch.distributions import Categorical
 from collections import deque
-from tensorboardX import SummaryWriter
+#from tensorboardX import SummaryWriter
 import timeit
-from src.helpers import SIMPLE_MOVEMENT, COMPLEX_MOVEMENT, RIGHT_ONLY, flag_get
-import numpy as np
+from src.helpers import SIMPLE_MOVEMENT, COMPLEX_MOVEMENT, RIGHT_ONLY
+import csv
 import time
+import numpy as np
+import sys
 
+def local_train(index, opt, global_model, optimizer, save=False):
+    seed=123
+    torch.manual_seed(seed)
+    start_time = time.time()
 
+    savefile = opt.saved_path + '/spaceinvaders_a3c_train' + opt.timestr + '.csv'
+    title = ['Loops', 'Steps', 'Time', 'AvgLoss',
+             'MeanReward', "StdReward", "TotalReward", "Flags"]
+    with open(savefile, 'w', newline='') as sfile:
+        writer = csv.writer(sfile)
+        writer.writerow(title)
 
-def local_train(index, opt, global_model, optimizer,num_states,num_actions, save=False):
-    torch.manual_seed(123 + index)
-    if save:
-        start_time = timeit.default_timer()
-    writer = SummaryWriter(opt.log_path)
-
-    if opt.action_type == "right":
-        actions = RIGHT_ONLY
-    elif opt.action_type == "simple":
-        actions = SIMPLE_MOVEMENT
-    else:
-        actions = COMPLEX_MOVEMENT
-
-    env = create_train_env(actions, mp_wrapper=False)
+    env, num_states, num_actions = create_train_env(opt.world, opt.stage,opt.action_type)
     local_model = ActorCritic(num_states, num_actions)
     if opt.use_gpu:
         local_model.cuda()
@@ -40,15 +39,18 @@ def local_train(index, opt, global_model, optimizer,num_states,num_actions, save
     done = True
     curr_step = 0
     curr_episode = 0
-    start_time = time.time()
+    tot_reward=0
+    tot_step=0
+    got_flag=0
+
     while True:
         if save:
             if curr_episode % opt.save_interval == 0 and curr_episode > 0:
                 torch.save(global_model.state_dict(),
-                           "{}/a3c_super_mario_bros_{}_{}".format(opt.saved_path, opt.world, opt.stage))
-            #print("Process {}. Episode {}".format(index, curr_episode))
+                           "{}/a3c_spaceinvaders_{}_{}".format(opt.saved_path, opt.world, opt.stage))
+                torch.save(global_model.state_dict(),"{}/a3c_spaceinvaders_{}_{}_{}".format(opt.saved_path, opt.world, opt.stage,curr_episode))
+            print("Process {}. Episode {}".format(index, curr_episode))
         curr_episode += 1
-
         local_model.load_state_dict(global_model.state_dict())
         if done:
             h_0 = torch.zeros((1, 512), dtype=torch.float)
@@ -64,18 +66,10 @@ def local_train(index, opt, global_model, optimizer,num_states,num_actions, save
         values = []
         rewards = []
         entropies = []
-        
-        old_log_policies = []
-        actions = []
-        states = []
-        dones = []
-        flags = []
 
         for _ in range(opt.num_local_steps):
             curr_step += 1
-            one=0
-            two=0
-            logits, value, h_0, c_0,one,two = local_model(state, h_0, c_0,one,two)
+            logits, value, h_0, c_0 = local_model(state, h_0, c_0)
             policy = F.softmax(logits, dim=1)
             log_policy = F.log_softmax(logits, dim=1)
             entropy = -(policy * log_policy).sum(1, keepdim=True)
@@ -83,7 +77,8 @@ def local_train(index, opt, global_model, optimizer,num_states,num_actions, save
             m = Categorical(policy)
             action = m.sample().item()
 
-            state, reward, done, _ = env.step(action)
+            state, reward, done, info = env.step(action)
+            #print(type(reward))
             state = torch.from_numpy(state)
             if opt.use_gpu:
                 state = state.cuda()
@@ -100,6 +95,7 @@ def local_train(index, opt, global_model, optimizer,num_states,num_actions, save
             log_policies.append(log_policy[0, action])
             rewards.append(reward)
             entropies.append(entropy)
+            tot_reward += reward
 
             if done:
                 break
@@ -108,7 +104,7 @@ def local_train(index, opt, global_model, optimizer,num_states,num_actions, save
         if opt.use_gpu:
             R = R.cuda()
         if not done:
-            _, R, _, _,states,actions = local_model(state, h_0, c_0,num_states,num_actions)
+            _, R, _, _ = local_model(state, h_0, c_0)
 
         gae = torch.zeros((1, 1), dtype=torch.float)
         if opt.use_gpu:
@@ -117,7 +113,6 @@ def local_train(index, opt, global_model, optimizer,num_states,num_actions, save
         critic_loss = 0
         entropy_loss = 0
         next_value = R
-        avg_loss = []
 
         for value, log_policy, reward, entropy in list(zip(values, log_policies, rewards, entropies))[::-1]:
             gae = gae * opt.gamma * opt.tau
@@ -129,66 +124,100 @@ def local_train(index, opt, global_model, optimizer,num_states,num_actions, save
             entropy_loss = entropy_loss + entropy
 
         total_loss = -actor_loss + critic_loss - opt.beta * entropy_loss
-       # writer.add_scalar("Train_{}/Loss".format(index), total_loss, curr_episode)
         optimizer.zero_grad()
-        print(total_loss)
         total_loss.backward()
-        #print(total_loss)
+
+
+        ep_time = time.time() - start_time
+
+        avg_loss = 0
+        mean_reward=0
+       #print(total_loss)
+
+       # if flag_get(info):
+        #    got_flag = 1
+         #   print(info)
+          #  print("Got flag in training")
+           # done = True
+
         for local_param, global_param in zip(local_model.parameters(), global_model.parameters()):
             if global_param.grad is not None:
                 break
             global_param._grad = local_param.grad
-        #env.render()
+       # if done:
+        #    ep_time = time.time() - start_time
+         ##   print(curr_episode)
+#
+ #           if curr_episode % 100 == 0:
+  #              data = [curr_step, curr_episode, "{:.6f}".format(ep_time), "{:.4f}".format(avg_loss), "{:.4f}".format(
+   #             mean_reward), "{:.4f}".format(reward), "{:.2f}".format(tot_reward), any_flags]
+#
+                #data = [curr_episode, "{:.4f}".format(ep_time), "{:.2f}".format(reward), got_flag]
+ #               with open(savefile, 'a', newline='') as sfile:
+  #                  writer = csv.writer(sfile)
+   #                 writer.writerows([data])
 
-        optimizer.step()
-        avg_loss.append(total_loss.cpu().detach().numpy().tolist())
-        avg_loss = np.mean(avg_loss)
-        all_rewards = rewards
-        #tot_steps += opt.num_local_steps * opt.num_processes
-        sum_reward = np.sum(all_rewards)
-        mu_reward = np.mean(all_rewards)
-        std_reward = np.std(all_rewards)
-        any_flags = np.sum(flags)
-        ep_time = time.time() - start_time
-        # data = [tot_loops, tot_steps, ep_time, avg_loss, mu_reward, std_reward, sum_reward, any_flags]
-       # data = [curr_step, curr_episode, "{:.6f}".format(ep_time), "{:.4f}".format(avg_loss), "{:.4f}".format(mu_reward), "{:.4f}".format(std_reward), "{:.2f}".format(sum_reward), any_flags]
+        if curr_episode % 100 == 0:
 
+            data = [curr_step, curr_episode, "{:.6f}".format(ep_time), "{:.4f}".format(avg_loss), "{:.4f}".format(
+            mean_reward), "{:.4f}".format(reward), "{:.2f}".format(reward), got_flag]
+            
+            with open(savefile, 'a', newline='') as sfile:
+                writer = csv.writer(sfile)
+                writer.writerows([data])
+
+            #tot_reward = 0
+       
+       # ep_time = time.time() - start_time
+       # print(curr_episode)
+       # data = [curr_episode, "{:.4f}".format(ep_time), "{:.2f}".format(reward), got_flag]
         #with open(savefile, 'a', newline='') as sfile:
          #   writer = csv.writer(sfile)
           #  writer.writerows([data])
-        elapsed_time = time.time() - start_time
-        #if check_flag(info):
-         #   print("Stage finished")
+        #tot_reward=0
+        optimizer.step()
 
         if curr_episode == int(opt.num_global_steps / opt.num_local_steps):
             print("Training process {} terminated".format(index))
             if save:
                 end_time = timeit.default_timer()
-                print('The code runs for %.2f s ' % (end_time - start_time))
-            
-        print("Steps: {}. Total loss: {}. Time elapsed: {}".format(curr_step, total_loss,time.strftime("%H:%M:%S", time.gmtime(elapsed_time))))
+                sys.exit('The code runs for %.2f s ' % (end_time - start_time))
+                
+            return
 
 
+def local_test(index, opt, global_model):
+    seed=123
+    torch.manual_seed(seed)
+    start_time = time.time()
 
-def local_test(index, opt, global_model,num_states,num_actions):
+    #writer = SummaryWriter(opt.log_path)
+  #  savefile = opt.saved_path + '/A3C_test' + opt.timestr +  '.csv'
+   # #print(savefile)
+    #title = ['Steps', 'Time', 'TotalReward', "Flag"]
+   # with open(savefile, 'w', newline='') as sfile:
+    #    writer = csv.writer(sfile)
+     #   writer.writerow(title)
+    savefile = opt.saved_path + '/spaceinvaders_a3c_test' + opt.timestr + '.csv'
+    print(savefile)
+    title = ['Steps', 'Time', 'TotalReward', "Flag"]
+    with open(savefile, 'w', newline='') as sfile:
+        writer = csv.writer(sfile)
+        writer.writerow(title)
 
-    if opt.action_type == "right":
-        actions = RIGHT_ONLY
-    elif opt.action_type == "simple":
-        actions = SIMPLE_MOVEMENT
-    else:
-        actions = COMPLEX_MOVEMENT
-
-    torch.manual_seed(123 + index)
-    env = create_train_env(actions, mp_wrapper=False)
+    env, num_states, num_actions = create_train_env(opt.world, opt.stage,opt.action_type)
     local_model = ActorCritic(num_states, num_actions)
     local_model.eval()
     state = torch.from_numpy(env.reset())
     done = True
     curr_step = 0
+    tot_reward=0
+    tot_step=0
+    got_flag=0
     actions = deque(maxlen=opt.max_actions)
     while True:
         curr_step += 1
+        tot_step+=1
         if done:
             local_model.load_state_dict(global_model.state_dict())
         with torch.no_grad():
@@ -198,18 +227,41 @@ def local_test(index, opt, global_model,num_states,num_actions):
             else:
                 h_0 = h_0.detach()
                 c_0 = c_0.detach()
-        one=0
-        two=0
-        logits, value, h_0, c_0,one,two = local_model(state, h_0, c_0,one,two)
+
+        logits, value, h_0, c_0 = local_model(state, h_0, c_0)
         policy = F.softmax(logits, dim=1)
         action = torch.argmax(policy).item()
-        state, reward, done, _ = env.step(action)
+        state, reward, done, info = env.step(action)
+        tot_reward += reward
+
+     #   if flag_get(info):
+       #     got_flag = 1
+        #    print("Got flag")
+         #   done = True
+       #     torch.save(local_model.state_dict(),
+         #              "{}/a3c_super_mario_bros_{}".format(opt.saved_path, curr_step))
+
         env.render()
         actions.append(action)
-        if curr_step > opt.num_global_steps or actions.count(actions[0]) == actions.maxlen:
+        if curr_step > opt.num_global_steps:
             done = True
+            torch.save(local_model.state_dict(),
+                       "{}/a3c_spaceinvaders_{}".format(opt.saved_path, curr_step))
+
+            sys.exit("Training terminated")
+
         if done:
-            curr_step = 0
+            ep_time = time.time() - start_time
+            data = [curr_step, "{:.4f}".format(ep_time), "{:.2f}".format(tot_reward), got_flag]
+            with open(savefile, 'a', newline='') as sfile:
+                writer = csv.writer(sfile)
+                writer.writerows([data])
+            
+            #curr_step = 0
+            got_flag = 0
+            tot_reward = 0
+
             actions.clear()
             state = env.reset()
+
         state = torch.from_numpy(state)

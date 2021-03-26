@@ -9,12 +9,15 @@ import argparse
 import torch
 from src.env import create_train_env
 from src.model import ActorCritic
+from src.helpers import flag_get
 import torch.nn.functional as F
-
+os.environ['DISPLAY'] = ':1'
 
 def get_args():
     parser = argparse.ArgumentParser(
-        """Implementation of model described in the paper: Asynchronous Methods for Deep Reinforcement Learning for Super Mario Bros""")
+        """Implementation of model described in the paper: Proximal Policy Optimization Algorithms for Contra Nes""")
+    parser.add_argument("--model_world", type=int, default=1)
+    parser.add_argument("--model_stage", type=int, default=1)
     parser.add_argument("--world", type=int, default=1)
     parser.add_argument("--stage", type=int, default=1)
     parser.add_argument("--action_type", type=str, default="complex")
@@ -26,14 +29,17 @@ def get_args():
 
 def test(opt):
     torch.manual_seed(123)
-    env, num_states, num_actions = create_train_env(opt.world, opt.stage, opt.action_type,
-                                                    "{}/video_{}_{}.mp4".format(opt.output_path, opt.world, opt.stage))
+    
+    opt.saved_path = os.getcwd() + '/spaceinvaders/a3c/' + opt.saved_path
+    env, num_states, num_actions = create_train_env(opt.world, opt.stage, opt.action_type)
     model = ActorCritic(num_states, num_actions)
     if torch.cuda.is_available():
-        model.load_state_dict(torch.load("{}/a3c_super_mario_bros_{}_{}".format(opt.saved_path, opt.world, opt.stage)))
+        #model.load_state_dict(torch.load("{}/a3c_super_mario_bros_{}_{}".format(opt.saved_path, opt.world, opt.stage)))
+
+        model.load_state_dict(torch.load("{}/a3c_spaceinvaders_{}_{}".format(opt.saved_path, opt.model_world, opt.model_stage)))
         model.cuda()
     else:
-        model.load_state_dict(torch.load("{}/a3c_super_mario_bros_{}_{}".format(opt.saved_path, opt.world, opt.stage),
+        model.load_state_dict(torch.load("{}/a3c_spaceinvaders_{}_{}".format(opt.saved_path, opt.model_world, opt.model_stage),
                                          map_location=lambda storage, loc: storage))
     model.eval()
     state = torch.from_numpy(env.reset())
@@ -58,8 +64,8 @@ def test(opt):
         state, reward, done, info = env.step(action)
         state = torch.from_numpy(state)
         env.render()
-        if info["flag_get"]:
-            print("World {} stage {} completed".format(opt.world, opt.stage))
+        if done:
+            print(info)
             break
 
 

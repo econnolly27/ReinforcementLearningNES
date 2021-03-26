@@ -59,7 +59,7 @@ def train(opt):
         torch.manual_seed(seed)
         print("not using cuda")
 
-    opt.saved_path = os.getcwd() + '/spaceinvaders/a3c/' + opt.saved_path
+    opt.saved_path = os.getcwd() + '/arkanoid/a3c/' + opt.saved_path
 
     if opt.action_type == "right":
         actions = RIGHT_ONLY

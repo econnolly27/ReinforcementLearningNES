@@ -17,7 +17,7 @@ from src.helpers import JoypadSpace, SIMPLE_MOVEMENT, COMPLEX_MOVEMENT, RIGHT_ON
 #from src.retrowrapper import RetroWrapper
 
 SCRIPT_DIR = os.getcwd() #os.path.dirname(os.path.abspath(__file__))
-ENV_NAME = 'Gradius-Nes'
+ENV_NAME = 'Arkanoid-Nes'
 
 class Monitor:
     def __init__(self, width, height, saved_path):

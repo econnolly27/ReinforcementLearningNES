@@ -10,7 +10,7 @@ from torch.distributions import Categorical
 from collections import deque
 #from tensorboardX import SummaryWriter
 import timeit
-from src.helpers import SIMPLE_MOVEMENT, COMPLEX_MOVEMENT, RIGHT_ONLY, flag_get
+from src.helpers import SIMPLE_MOVEMENT, COMPLEX_MOVEMENT, RIGHT_ONLY
 import csv
 import time
 import numpy as np
@@ -21,7 +21,7 @@ def local_train(index, opt, global_model, optimizer, save=False):
     torch.manual_seed(seed)
     start_time = time.time()
 
-    savefile = opt.saved_path + '/mario_a3c_train' + opt.timestr + '.csv'
+    savefile = opt.saved_path + '/arkanoid_a3c_train' + opt.timestr + '.csv'
     title = ['Loops', 'Steps', 'Time', 'AvgLoss',
              'MeanReward', "StdReward", "TotalReward", "Flags"]
     with open(savefile, 'w', newline='') as sfile:
@@ -47,8 +47,8 @@ def local_train(index, opt, global_model, optimizer, save=False):
         if save:
             if curr_episode % opt.save_interval == 0 and curr_episode > 0:
                 torch.save(global_model.state_dict(),
-                           "{}/a3c_super_mario_bros_{}_{}".format(opt.saved_path, opt.world, opt.stage))
-                torch.save(global_model.state_dict(),"{}/a3c_super_mario_bros_{}_{}_{}".format(opt.saved_path, opt.world, opt.stage,curr_episode))
+                           "{}/a3c_arkanoid_{}_{}".format(opt.saved_path, opt.world, opt.stage))
+                torch.save(global_model.state_dict(),"{}/a3c_arkanoid_{}_{}_{}".format(opt.saved_path, opt.world, opt.stage,curr_episode))
             print("Process {}. Episode {}".format(index, curr_episode))
         curr_episode += 1
         local_model.load_state_dict(global_model.state_dict())
@@ -134,11 +134,11 @@ def local_train(index, opt, global_model, optimizer, save=False):
         mean_reward=0
        #print(total_loss)
 
-        if flag_get(info):
-            got_flag = 1
-            print(info)
-            print("Got flag in training")
-            done = True
+       # if flag_get(info):
+        #    got_flag = 1
+         #   print(info)
+          #  print("Got flag in training")
+           # done = True
 
         for local_param, global_param in zip(local_model.parameters(), global_model.parameters()):
             if global_param.grad is not None:
@@ -198,7 +198,7 @@ def local_test(index, opt, global_model):
    # with open(savefile, 'w', newline='') as sfile:
     #    writer = csv.writer(sfile)
      #   writer.writerow(title)
-    savefile = opt.saved_path + '/mario_a3c_test' + opt.timestr + '.csv'
+    savefile = opt.saved_path + '/arkanoid_a3c_test' + opt.timestr + '.csv'
     print(savefile)
     title = ['Steps', 'Time', 'TotalReward', "Flag"]
     with open(savefile, 'w', newline='') as sfile:
@@ -234,10 +234,10 @@ def local_test(index, opt, global_model):
         state, reward, done, info = env.step(action)
         tot_reward += reward
 
-        if flag_get(info):
-            got_flag = 1
-            print("Got flag")
-            done = True
+     #   if flag_get(info):
+       #     got_flag = 1
+        #    print("Got flag")
+         #   done = True
        #     torch.save(local_model.state_dict(),
          #              "{}/a3c_super_mario_bros_{}".format(opt.saved_path, curr_step))
 
@@ -246,7 +246,7 @@ def local_test(index, opt, global_model):
         if curr_step > opt.num_global_steps:
             done = True
             torch.save(local_model.state_dict(),
-                       "{}/a3c_super_mario_bros_{}".format(opt.saved_path, curr_step))
+                       "{}/a3c_arkanoid_{}".format(opt.saved_path, curr_step))
 
             sys.exit("Training terminated")
 

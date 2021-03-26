@@ -30,16 +30,16 @@ def get_args():
 def test(opt):
     torch.manual_seed(123)
     
-    opt.saved_path = os.getcwd() + '/gradius/a3c/' + opt.saved_path
+    opt.saved_path = os.getcwd() + '/arkanoid/a3c/' + opt.saved_path
     env, num_states, num_actions = create_train_env(opt.world, opt.stage, opt.action_type)
     model = ActorCritic(num_states, num_actions)
     if torch.cuda.is_available():
         #model.load_state_dict(torch.load("{}/a3c_super_mario_bros_{}_{}".format(opt.saved_path, opt.world, opt.stage)))
 
-        model.load_state_dict(torch.load("{}/a3c_gradius_{}_{}".format(opt.saved_path, opt.model_world, opt.model_stage)))
+        model.load_state_dict(torch.load("{}/a3c_arkanoid_{}_{}".format(opt.saved_path, opt.model_world, opt.model_stage)))
         model.cuda()
     else:
-        model.load_state_dict(torch.load("{}/a3c_gradius_{}_{}".format(opt.saved_path, opt.model_world, opt.model_stage),
+        model.load_state_dict(torch.load("{}/a3c_arkanoid_{}_{}".format(opt.saved_path, opt.model_world, opt.model_stage),
                                          map_location=lambda storage, loc: storage))
     model.eval()
     state = torch.from_numpy(env.reset())
