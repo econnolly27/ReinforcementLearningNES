@@ -18,7 +18,7 @@ import numpy as np
 import shutil
 import csv
 import time
-from src.helpers import flag_get
+#from src.helpers import flag_get
 from src.helpers import _is_stage_over
 from datetime import datetime
 
@@ -62,13 +62,13 @@ def get_args():
     return args
 
 
-def check_flag(info):
-    out = 0
-    for i in info:
-        # print(info)
-        if flag_get(i):
-            out += 1
-    return out
+##def check_flag(info):
+  #  out = 0
+   # for i in info:
+    #    # print(info)
+     #   if flag_get(i):
+     #       out += 1
+    #return out
 
 
 def train(opt):
@@ -80,7 +80,7 @@ def train(opt):
         torch.manual_seed(seed)
         print("not using cuda")
 
-    opt.saved_path = os.getcwd() + '/mario/PPO/' + opt.saved_path
+    opt.saved_path = os.getcwd() + '/arkanoid/PPO/' + opt.saved_path
 
     if not os.path.isdir(opt.saved_path):
         os.makedirs(opt.saved_path)
@@ -136,7 +136,7 @@ def train(opt):
         # Save model each loop
         if tot_loops % opt.save_interval == 0 and tot_loops > 0:
             torch.save(model.state_dict(
-            ), "{}/PPO_super_mario_bros_{}_{}".format(opt.saved_path, opt.world, opt.stage))
+            ), "{}/PPO_arkanoid_{}_{}".format(opt.saved_path, opt.world, opt.stage))
             torch.save(model.state_dict(), "{}/PPO_super_mario_bros_{}_{}_{}".format(
                 opt.saved_path, opt.world, opt.stage, tot_loops))
 
@@ -188,7 +188,7 @@ def train(opt):
 
             rewards.append(reward)
             dones.append(done)
-            flags.append(check_flag(info) / opt.num_processes)
+           # flags.append(check_flag(info) / opt.num_processes)
             curr_states = state
 
         # Training stage
@@ -253,10 +253,10 @@ def train(opt):
         elapsed_time = time.time() - start_time
         print("Steps: {}. Total loss: {}. Time elapsed: {}".format(
             tot_steps, total_loss, time.strftime("%H:%M:%S", time.gmtime(elapsed_time))))
-        if check_flag(info):
-            torch.save(model.state_dict(),
-                       "{}/PPO_super_mario_bros_{}".format(opt.saved_path, tot_loops))
-            print("Got flag at time {} step {}".format(tot_steps,time.strftime("%H:%M:%S", time.gmtime(elapsed_time))))
+        #if check_flag(info):
+        #    torch.save(model.state_dict(),
+         #              "{}/PPO_super_mario_bros_{}".format(opt.saved_path, tot_loops))
+          #  print("Got flag at time {} step {}".format(tot_steps,time.strftime("%H:%M:%S", time.gmtime(elapsed_time))))
 
 if __name__ == "__main__":
     opt = get_args()

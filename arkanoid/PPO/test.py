@@ -30,7 +30,7 @@ def get_args():
 
 def test(opt):
 
-    opt.saved_path = os.getcwd() + '/mario/PPO/' + opt.saved_path
+    opt.saved_path = os.getcwd() + '/arkanoid/PPO/' + opt.saved_path
 
     if torch.cuda.is_available():
         torch.cuda.manual_seed(123)
@@ -49,10 +49,10 @@ def test(opt):
     print(os.getcwd())
     if torch.cuda.is_available():
         #model.load_state_dict(torch.load("trained_models/abc"))
-        model.load_state_dict(torch.load("{}/PPO_super_mario_bros_{}_{}".format(opt.saved_path, opt.model_world, opt.model_stage)))
+        model.load_state_dict(torch.load("{}/PPO_arkanoid_{}_{}".format(opt.saved_path, opt.model_world, opt.model_stage)))
         model.cuda()
     else:
-        model.load_state_dict(torch.load("{}/PPO_super_mario_bros_{}_{}".format(opt.saved_path, opt.model_world, opt.model_stage),
+        model.load_state_dict(torch.load("{}/PPO_arkanoid_{}_{}".format(opt.saved_path, opt.model_world, opt.model_stage),
                                          map_location=lambda storage, loc: storage))
     model.eval()
     state = torch.from_numpy(env.reset())
@@ -65,9 +65,9 @@ def test(opt):
         state, reward, done, info = env.step(action)
         state = torch.from_numpy(state)
         env.render()
-        if flag_get(info):
-            print("World {} stage {} completed".format(opt.world, opt.stage))
-            break
+      #  if flag_get(info):
+       #     print("World {} stage {} completed".format(opt.world, opt.stage))
+        #    break
 
 
 if __name__ == "__main__":

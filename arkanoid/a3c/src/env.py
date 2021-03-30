@@ -4,17 +4,13 @@
 import os 
 import gym
 import retro
-#import gym_super_mario_bros
 from gym.spaces import Box
 from gym import Wrapper
-#from nes_py.wrappers import BinarySpaceToDiscreteSpaceEnv
-#from gym_super_mario_bros.actions import SIMPLE_MOVEMENT, COMPLEX_MOVEMENT, RIGHT_ONLY
 import cv2
 import numpy as np
 import subprocess as sp
 import torch.multiprocessing as mp
 from src.helpers import JoypadSpace, SIMPLE_MOVEMENT, COMPLEX_MOVEMENT, RIGHT_ONLY
-#from src.retrowrapper import RetroWrapper
 
 SCRIPT_DIR = os.getcwd() #os.path.dirname(os.path.abspath(__file__))
 ENV_NAME = 'Arkanoid-Nes'

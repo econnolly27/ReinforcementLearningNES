@@ -8,7 +8,7 @@ from src.model import PPO
 import torch.nn.functional as F
 from collections import deque
 import numpy as np
-from src.helpers import SIMPLE_MOVEMENT, COMPLEX_MOVEMENT, RIGHT_ONLY, flag_get
+from src.helpers import SIMPLE_MOVEMENT, COMPLEX_MOVEMENT, RIGHT_ONLY
 import csv, os
 import time
 
@@ -59,13 +59,13 @@ def evaluate(opt, global_model, num_states, num_actions):
         tot_reward += reward
 
         # Uncomment following lines if you want to save model whenever level is completed
-        if flag_get(info):
-            got_flag = 1
-            done = True
-            print("Got flag at time {} step {}".format(tot_step,time.strftime("%H:%M:%S", time.gmtime(time.time()))))
+        #if flag_get(info):
+         #   got_flag = 1
+          #  done = True
+           # print("Got flag at time {} step {}".format(tot_step,time.strftime("%H:%M:%S", time.gmtime(time.time()))))
 
-            torch.save(local_model.state_dict(),
-                       "{}/PPO_super_mario_bros_{}".format(opt.saved_path, curr_step))
+            #torch.save(local_model.state_dict(),
+             #          "{}/PPO_arkanoid_{}".format(opt.saved_path, curr_step))
 
         env.render()
         actions.append(action)
