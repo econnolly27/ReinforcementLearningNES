@@ -9,7 +9,6 @@ import argparse
 import torch
 from src.env import create_train_env
 from src.model import ActorCritic
-from src.helpers import flag_get
 import torch.nn.functional as F
 os.environ['DISPLAY'] = ':1'
 
@@ -34,6 +33,7 @@ def test(opt):
     env, num_states, num_actions = create_train_env(opt.world, opt.stage, opt.action_type)
     model = ActorCritic(num_states, num_actions)
     if torch.cuda.is_available():
+        #model.load_state_dict(torch.load("{}/a3c_super_arkanoid_bros_{}_{}".format(opt.saved_path, opt.world, opt.stage)))
 
         model.load_state_dict(torch.load("{}/a3c_arkanoid_{}_{}".format(opt.saved_path, opt.model_world, opt.model_stage)))
         model.cuda()
@@ -63,9 +63,10 @@ def test(opt):
         state, reward, done, info = env.step(action)
         state = torch.from_numpy(state)
         env.render()
-        if done:
-            print(info)
-            break
+        #if flag_get(info):
+         #   print("World {} stage {} completed".format(opt.world, opt.stage))
+          #  print(info)
+           # break
 
 
 if __name__ == "__main__":

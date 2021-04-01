@@ -2,15 +2,19 @@
 @author: Viet Nguyen <nhviet1009@gmail.com>
 """
 
-import torch
-from src.env import create_train_env
-from src.model import PPO
-import torch.nn.functional as F
-from collections import deque
-import numpy as np
-from src.helpers import SIMPLE_MOVEMENT, COMPLEX_MOVEMENT, RIGHT_ONLY, flag_get
-import csv, os
+import csv
+import os
+import sys
 import time
+from collections import deque
+
+import numpy as np
+import torch
+import torch.nn.functional as F
+
+from src.env import create_train_env
+from src.helpers import COMPLEX_MOVEMENT, RIGHT_ONLY, SIMPLE_MOVEMENT, flag_get
+from src.model import PPO
 
 
 def evaluate(opt, global_model, num_states, num_actions):
@@ -57,22 +61,27 @@ def evaluate(opt, global_model, num_states, num_actions):
         action = torch.argmax(policy).item() # This selects the best action to take
         state, reward, done, info = env.step(action)
         tot_reward += reward
-
-        # Uncomment following lines if you want to save model whenever level is completed
         if flag_get(info):
             got_flag = 1
             done = True
-            print("Got flag at time {} step {}".format(tot_step,time.strftime("%H:%M:%S", time.gmtime(time.time()))))
+            print("Got flag in testing at time {} step {}".format(tot_step,time.strftime("%H:%M:%S", time.gmtime(time.time()))))
 
-            torch.save(local_model.state_dict(),
-                       "{}/PPO_super_mario_bros_{}".format(opt.saved_path, curr_step))
+            #Uncomment previous lines if you want to save when flag is reached
+            #torch.save(local_model.state_dict(),
+             #          "{}/PPO_super_mario_bros_{}".format(opt.saved_path, curr_step))
 
         env.render()
         actions.append(action)
-        if curr_step > opt.num_global_steps or actions.count(actions[0]) == actions.maxlen:
-            # print("Evaluate: Time's up!")
+
+        if actions.count(actions[0]) == actions.maxlen:
             done = True
 
+
+        if curr_step > opt.num_global_steps:
+            torch.save(local_model.state_dict(),
+                       "{}/PPO_super_mario_bros_{}".format(opt.saved_path, curr_step))
+
+            sys.exit("Training terminated")
         if done:
             # print("Evaluate: Done!")
             ep_time = time.time() - start_time

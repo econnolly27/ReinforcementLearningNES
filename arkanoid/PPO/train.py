@@ -18,8 +18,6 @@ import numpy as np
 import shutil
 import csv
 import time
-#from src.helpers import flag_get
-from src.helpers import _is_stage_over
 from datetime import datetime
 
 os.environ['OMP_NUM_THREADS'] = '1'
@@ -56,19 +54,10 @@ def get_args():
                         help="Maximum repetition steps in test phase")
     parser.add_argument("--timestr", type=str, default=timestr)
     parser.add_argument("--log_path", type=str,
-                        default="tensorboard/ppo_super_mario_bros" + timestr)
+                        default="tensorboard/ppo_arkanoid" + timestr)
     parser.add_argument("--saved_path", type=str, default="trained_models/" + timestr)
     args = parser.parse_args()
     return args
-
-
-##def check_flag(info):
-  #  out = 0
-   # for i in info:
-    #    # print(info)
-     #   if flag_get(i):
-     #       out += 1
-    #return out
 
 
 def train(opt):
@@ -95,8 +84,7 @@ def train(opt):
 
     savefile = opt.saved_path + '/arkanoid_PPO_train' + opt.timestr + '.csv'
     print(savefile)
-    title = ['Loops', 'Steps', 'Time', 'AvgLoss',
-             'MeanReward', "StdReward", "TotalReward", "Flags"]
+    title = ['Loops', 'Steps', 'Time', 'MeanReward', "MeanScores"]
     with open(savefile, 'w', newline='') as sfile:
         writer = csv.writer(sfile)
         writer.writerow(title)
@@ -137,7 +125,7 @@ def train(opt):
         if tot_loops % opt.save_interval == 0 and tot_loops > 0:
             torch.save(model.state_dict(
             ), "{}/PPO_arkanoid_{}_{}".format(opt.saved_path, opt.world, opt.stage))
-            torch.save(model.state_dict(), "{}/PPO_super_mario_bros_{}_{}_{}".format(
+            torch.save(model.state_dict(), "{}/PPO_arkanoid_{}_{}_{}".format(
                 opt.saved_path, opt.world, opt.stage, tot_loops))
 
         # Accumulate evidence
@@ -148,7 +136,7 @@ def train(opt):
         states = []
         rewards = []
         dones = []
-        flags = []
+        scores = []
         for _ in range(opt.num_local_steps):
             # From given states, predict an action
             states.append(curr_states)
@@ -177,7 +165,7 @@ def train(opt):
 
             state, reward, done, info = zip(*result)
             state = torch.from_numpy(np.concatenate(state, 0))
-
+            #print(info)
             if torch.cuda.is_available():
                 state = state.cuda()
                 reward = torch.cuda.FloatTensor(reward)
@@ -186,9 +174,11 @@ def train(opt):
                 reward = torch.FloatTensor(reward)
                 done = torch.FloatTensor(done)
 
+
             rewards.append(reward)
             dones.append(done)
-           # flags.append(check_flag(info) / opt.num_processes)
+            for i in range(4):
+                scores.append(int(info[i]['score']))
             curr_states = state
 
         # Training stage
@@ -238,14 +228,13 @@ def train(opt):
         avg_loss = np.mean(avg_loss)
         all_rewards = torch.cat(rewards).cpu().numpy()
         tot_steps += opt.num_local_steps * opt.num_processes
-        sum_reward = np.sum(all_rewards)
+        #sum_reward = np.sum(all_rewards)
         mu_reward = np.mean(all_rewards)
-        std_reward = np.std(all_rewards)
-        any_flags = np.sum(flags)
+        #std_reward = np.std(all_rewards)
         ep_time = time.time() - start_time
-        # data = [tot_loops, tot_steps, ep_time, avg_loss, mu_reward, std_reward, sum_reward, any_flags]
-        data = [tot_loops, tot_steps, "{:.6f}".format(ep_time), "{:.4f}".format(avg_loss), "{:.4f}".format(
-            mu_reward), "{:.4f}".format(std_reward), "{:.2f}".format(sum_reward), any_flags]
+        mean_scores = np.mean(scores)
+        data = [tot_loops, tot_steps, "{:.6f}".format(ep_time), "{:.4f}".format(
+            mu_reward),"{:.2f}".format(mean_scores)]
 
         with open(savefile, 'a', newline='') as sfile:
             writer = csv.writer(sfile)
@@ -253,10 +242,6 @@ def train(opt):
         elapsed_time = time.time() - start_time
         print("Steps: {}. Total loss: {}. Time elapsed: {}".format(
             tot_steps, total_loss, time.strftime("%H:%M:%S", time.gmtime(elapsed_time))))
-        #if check_flag(info):
-        #    torch.save(model.state_dict(),
-         #              "{}/PPO_super_mario_bros_{}".format(opt.saved_path, tot_loops))
-          #  print("Got flag at time {} step {}".format(tot_steps,time.strftime("%H:%M:%S", time.gmtime(elapsed_time))))
 
 if __name__ == "__main__":
     opt = get_args()

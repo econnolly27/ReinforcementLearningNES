@@ -22,8 +22,7 @@ def local_train(index, opt, global_model, optimizer, save=False):
     start_time = time.time()
 
     savefile = opt.saved_path + '/mario_a3c_train' + opt.timestr + '.csv'
-    title = ['Loops', 'Steps', 'Time', 'AvgLoss',
-             'MeanReward', "StdReward", "TotalReward", "Flags"]
+    title = ['Episode','Steps','Time','Reward','Flag','Score','xscrollLo','TotalReward']
     with open(savefile, 'w', newline='') as sfile:
         writer = csv.writer(sfile)
         writer.writerow(title)
@@ -159,8 +158,8 @@ def local_train(index, opt, global_model, optimizer, save=False):
 
         if curr_episode % 100 == 0:
 
-            data = [curr_step, curr_episode, "{:.6f}".format(ep_time), "{:.4f}".format(avg_loss), "{:.4f}".format(
-            mean_reward), "{:.4f}".format(reward), "{:.2f}".format(reward), got_flag]
+            data = [curr_step, curr_episode, "{:.6f}".format(ep_time), "{:.4f}".format(reward),
+             got_flag,"{:.2f}".format(info["score"]),"{:.2f}".format(info["xscrollLo"]),"{:.4f}".format(tot_reward)]
             
             with open(savefile, 'a', newline='') as sfile:
                 writer = csv.writer(sfile)
@@ -200,7 +199,7 @@ def local_test(index, opt, global_model):
      #   writer.writerow(title)
     savefile = opt.saved_path + '/mario_a3c_test' + opt.timestr + '.csv'
     print(savefile)
-    title = ['Steps', 'Time', 'TotalReward', "Flag"]
+    title = ['Steps', 'Time', 'Reward','TotalReward', "Flag",'Score','xscrollLo']
     with open(savefile, 'w', newline='') as sfile:
         writer = csv.writer(sfile)
         writer.writerow(title)
@@ -252,7 +251,7 @@ def local_test(index, opt, global_model):
 
         if done:
             ep_time = time.time() - start_time
-            data = [curr_step, "{:.4f}".format(ep_time), "{:.2f}".format(tot_reward), got_flag]
+            data = [curr_step, "{:.4f}".format(ep_time), "{:.4f}".format(reward), "{:.2f}".format(tot_reward), got_flag,"{:.2f}".format(info["score"]),"{:.2f}".format(info["xscrollLo"])]
             with open(savefile, 'a', newline='') as sfile:
                 writer = csv.writer(sfile)
                 writer.writerows([data])

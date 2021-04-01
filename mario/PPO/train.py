@@ -95,8 +95,8 @@ def train(opt):
 
     savefile = opt.saved_path + '/mario_PPO_train' + opt.timestr + '.csv'
     print(savefile)
-    title = ['Loops', 'Steps', 'Time', 'AvgLoss',
-             'MeanReward', "StdReward", "TotalReward", "Flags"]
+    title = ['Loops', 'Steps', 'Time', 'MeanReward',
+             'Flags', "MeanScores", "MeanScrolls"]
     with open(savefile, 'w', newline='') as sfile:
         writer = csv.writer(sfile)
         writer.writerow(title)
@@ -149,6 +149,8 @@ def train(opt):
         rewards = []
         dones = []
         flags = []
+        scores = []
+        scrolls = []
         for _ in range(opt.num_local_steps):
             # From given states, predict an action
             states.append(curr_states)
@@ -177,7 +179,7 @@ def train(opt):
 
             state, reward, done, info = zip(*result)
             state = torch.from_numpy(np.concatenate(state, 0))
-
+            #print(info)
             if torch.cuda.is_available():
                 state = state.cuda()
                 reward = torch.cuda.FloatTensor(reward)
@@ -186,8 +188,12 @@ def train(opt):
                 reward = torch.FloatTensor(reward)
                 done = torch.FloatTensor(done)
 
+
             rewards.append(reward)
             dones.append(done)
+            for i in range(4):
+                scores.append(int(info[i]['score']))
+                scrolls.append(int(info[i]['xscrollLo']))
             flags.append(check_flag(info) / opt.num_processes)
             curr_states = state
 
@@ -238,14 +244,16 @@ def train(opt):
         avg_loss = np.mean(avg_loss)
         all_rewards = torch.cat(rewards).cpu().numpy()
         tot_steps += opt.num_local_steps * opt.num_processes
-        sum_reward = np.sum(all_rewards)
+        #sum_reward = np.sum(all_rewards)
         mu_reward = np.mean(all_rewards)
-        std_reward = np.std(all_rewards)
+        #std_reward = np.std(all_rewards)
         any_flags = np.sum(flags)
         ep_time = time.time() - start_time
+        mean_scores = np.mean(scores)
+        mean_scrolls = np.mean(scrolls)
         # data = [tot_loops, tot_steps, ep_time, avg_loss, mu_reward, std_reward, sum_reward, any_flags]
-        data = [tot_loops, tot_steps, "{:.6f}".format(ep_time), "{:.4f}".format(avg_loss), "{:.4f}".format(
-            mu_reward), "{:.4f}".format(std_reward), "{:.2f}".format(sum_reward), any_flags]
+        data = [tot_loops, tot_steps, "{:.6f}".format(ep_time), "{:.4f}".format(
+            mu_reward),any_flags,"{:.2f}".format(mean_scores),"{:.2f}".format(mean_scrolls)]
 
         with open(savefile, 'a', newline='') as sfile:
             writer = csv.writer(sfile)
@@ -254,9 +262,10 @@ def train(opt):
         print("Steps: {}. Total loss: {}. Time elapsed: {}".format(
             tot_steps, total_loss, time.strftime("%H:%M:%S", time.gmtime(elapsed_time))))
         if check_flag(info):
+            #Uncomment lines below if you want to save when flag is reached
             torch.save(model.state_dict(),
                        "{}/PPO_super_mario_bros_{}".format(opt.saved_path, tot_loops))
-            print("Got flag at time {} step {}".format(tot_steps,time.strftime("%H:%M:%S", time.gmtime(elapsed_time))))
+            print("Got flag in training at time {} step {}".format(tot_steps,time.strftime("%H:%M:%S", time.gmtime(elapsed_time))))
 
 if __name__ == "__main__":
     opt = get_args()
