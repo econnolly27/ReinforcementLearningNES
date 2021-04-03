@@ -64,7 +64,7 @@ def evaluate(opt, global_model, num_states, num_actions):
         if flag_get(info):
             got_flag = 1
             done = True
-            print("Got flag in testing at time {} step {}".format(tot_step,time.strftime("%H:%M:%S", time.gmtime(time.time()))))
+           # print("Got flag in testing at time {} step {}".format(tot_step,time.strftime("%H:%M:%S", time.gmtime(time.time()))))
 
             #Uncomment previous lines if you want to save when flag is reached
             #torch.save(local_model.state_dict(),
@@ -76,12 +76,12 @@ def evaluate(opt, global_model, num_states, num_actions):
         if actions.count(actions[0]) == actions.maxlen:
             done = True
 
+        #print(tot_step)
+        #if tot_step > opt.num_global_steps * 2:
+           # torch.save(local_model.state_dict(),
+              #         "{}/PPO_super_mario_bros_{}".format(opt.saved_path, curr_step))
 
-        if curr_step > opt.num_global_steps:
-            torch.save(local_model.state_dict(),
-                       "{}/PPO_super_mario_bros_{}".format(opt.saved_path, curr_step))
-
-            sys.exit("Training terminated")
+            #sys.exit("Test process terminated")
         if done:
             # print("Evaluate: Done!")
             ep_time = time.time() - start_time

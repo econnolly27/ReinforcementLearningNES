@@ -8,7 +8,6 @@ from src.model import ActorCritic
 import torch.nn.functional as F
 from torch.distributions import Categorical
 from collections import deque
-#from tensorboardX import SummaryWriter
 import timeit
 from src.helpers import SIMPLE_MOVEMENT, COMPLEX_MOVEMENT, RIGHT_ONLY, flag_get
 import csv
@@ -39,7 +38,7 @@ def local_train(index, opt, global_model, optimizer, save=False):
     curr_step = 0
     curr_episode = 0
     tot_reward=0
-    tot_step=0
+    tot_steps=0
     got_flag=0
 
     while True:
@@ -48,7 +47,8 @@ def local_train(index, opt, global_model, optimizer, save=False):
                 torch.save(global_model.state_dict(),
                            "{}/a3c_super_mario_bros_{}_{}".format(opt.saved_path, opt.world, opt.stage))
                 torch.save(global_model.state_dict(),"{}/a3c_super_mario_bros_{}_{}_{}".format(opt.saved_path, opt.world, opt.stage,curr_episode))
-            print("Process {}. Episode {}".format(index, curr_episode))
+            elapsed_time = time.time() - start_time
+            print("Episode: {} Time elapsed: {}".format((opt.num_local_steps *curr_episode),time.strftime("%H:%M:%S", time.gmtime(elapsed_time))))
         curr_episode += 1
         local_model.load_state_dict(global_model.state_dict())
         if done:
@@ -132,11 +132,12 @@ def local_train(index, opt, global_model, optimizer, save=False):
         avg_loss = 0
         mean_reward=0
        #print(total_loss)
+        tot_steps = opt.num_local_steps * curr_episode
 
         if flag_get(info):
             got_flag = 1
-            print(info)
-            print("Got flag in training")
+            #print(info)
+            #print("Got flag in training")
             done = True
 
         for local_param, global_param in zip(local_model.parameters(), global_model.parameters()):
@@ -158,7 +159,7 @@ def local_train(index, opt, global_model, optimizer, save=False):
 
         if curr_episode % 100 == 0:
 
-            data = [curr_step, curr_episode, "{:.6f}".format(ep_time), "{:.4f}".format(reward),
+            data = [curr_step, tot_steps, "{:.6f}".format(ep_time), "{:.4f}".format(reward),
              got_flag,"{:.2f}".format(info["score"]),"{:.2f}".format(info["xscrollLo"]),"{:.4f}".format(tot_reward)]
             
             with open(savefile, 'a', newline='') as sfile:
@@ -176,11 +177,13 @@ def local_train(index, opt, global_model, optimizer, save=False):
         #tot_reward=0
         optimizer.step()
 
-        if curr_episode == int(opt.num_global_steps / opt.num_local_steps):
-            print("Training process {} terminated".format(index))
+        if tot_steps > opt.num_global_steps:
             if save:
-                end_time = timeit.default_timer()
-                sys.exit('The code runs for %.2f s ' % (end_time - start_time))
+                end_time = time.time() - start_time
+                print('The code runs for {}'.format(time.strftime("%H:%M:%S", time.gmtime(elapsed_time))))
+            print("Training process {} terminated".format(index))
+            sys.exit()
+
                 
             return
 
@@ -244,10 +247,10 @@ def local_test(index, opt, global_model):
         actions.append(action)
         if curr_step > opt.num_global_steps:
             done = True
-            torch.save(local_model.state_dict(),
-                       "{}/a3c_super_mario_bros_{}".format(opt.saved_path, curr_step))
+            sys.exit("Test process terminated")
 
-            sys.exit("Training terminated")
+            #torch.save(local_model.state_dict(),
+                       #"{}/a3c_super_mario_bros_{}".format(opt.saved_path, curr_step))
 
         if done:
             ep_time = time.time() - start_time

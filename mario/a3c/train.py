@@ -9,7 +9,7 @@ from src.model import ActorCritic
 from src.optimizer import GlobalAdam
 from src.process import local_train, local_test
 import torch.multiprocessing as _mp
-import shutil,csv,time
+import shutil,csv,time,sys
 from src.helpers import flag_get
 from datetime import datetime
 import numpy as np
@@ -31,7 +31,7 @@ def get_args():
     parser.add_argument('--tau', type=float, default=1.0, help='parameter for GAE')
     parser.add_argument('--beta', type=float, default=0.01, help='entropy coefficient')
     parser.add_argument("--num_local_steps", type=int, default=50)
-    parser.add_argument("--num_global_steps", type=int, default=5e6)
+    parser.add_argument("--num_global_steps", type=int, default=1e5)
     parser.add_argument("--num_processes", type=int, default=4)
     parser.add_argument("--save_interval", type=int, default=1000, help="Number of steps between savings")
     parser.add_argument("--max_actions", type=int, default=200, help="Maximum repetition steps in test phase")
@@ -103,7 +103,6 @@ def train(opt):
     processes.append(process)
     for process in processes:
         process.join()
-
 
 if __name__ == "__main__":
     opt = get_args()

@@ -30,7 +30,7 @@ def get_args():
     parser.add_argument('--tau', type=float, default=1.0, help='parameter for GAE')
     parser.add_argument('--beta', type=float, default=0.01, help='entropy coefficient')
     parser.add_argument("--num_local_steps", type=int, default=50)
-    parser.add_argument("--num_global_steps", type=int, default=5e6)
+    parser.add_argument("--num_global_steps", type=int, default=1e6)
     parser.add_argument("--num_processes", type=int, default=4)
     parser.add_argument("--save_interval", type=int, default=1000, help="Number of steps between savings")
     parser.add_argument("--max_actions", type=int, default=200, help="Maximum repetition steps in test phase")

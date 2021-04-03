@@ -18,6 +18,8 @@ import numpy as np
 import shutil
 import csv
 import time
+import sys
+import os
 from src.helpers import flag_get
 from src.helpers import _is_stage_over
 from datetime import datetime
@@ -47,7 +49,7 @@ def get_args():
     parser.add_argument('--batch_size', type=int, default=16)
     parser.add_argument('--num_epochs', type=int, default=10)
     parser.add_argument("--num_local_steps", type=int, default=512)
-    parser.add_argument("--num_global_steps", type=int, default=5e6)
+    parser.add_argument("--num_global_steps", type=int, default=1e5)
     parser.add_argument("--num_processes", type=int, default=4,
                         help="Number of concurrent processes, has to be larger than 1")
     parser.add_argument("--save_interval", type=int, default=50,
@@ -139,6 +141,19 @@ def train(opt):
             ), "{}/PPO_super_mario_bros_{}_{}".format(opt.saved_path, opt.world, opt.stage))
             torch.save(model.state_dict(), "{}/PPO_super_mario_bros_{}_{}_{}".format(
                 opt.saved_path, opt.world, opt.stage, tot_loops))
+
+
+
+        if tot_steps > opt.num_global_steps:
+            torch.save(model.state_dict(
+            ), "{}/PPO_super_mario_bros_{}_{}".format(opt.saved_path, opt.world, opt.stage))
+
+            end_time = time.time() - start_time
+            print('The code runs for {}'.format(time.strftime("%H:%M:%S", time.gmtime(end_time))))
+            print("Training process terminated")
+            process.terminate()
+            os._exit(0)
+           # sys.exit()
 
         # Accumulate evidence
         tot_loops += 1
@@ -266,6 +281,7 @@ def train(opt):
             torch.save(model.state_dict(),
                        "{}/PPO_super_mario_bros_{}".format(opt.saved_path, tot_loops))
             print("Got flag in training at time {} step {}".format(tot_steps,time.strftime("%H:%M:%S", time.gmtime(elapsed_time))))
+
 
 if __name__ == "__main__":
     opt = get_args()

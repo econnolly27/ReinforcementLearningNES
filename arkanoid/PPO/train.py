@@ -45,7 +45,7 @@ def get_args():
     parser.add_argument('--batch_size', type=int, default=16)
     parser.add_argument('--num_epochs', type=int, default=10)
     parser.add_argument("--num_local_steps", type=int, default=512)
-    parser.add_argument("--num_global_steps", type=int, default=5e6)
+    parser.add_argument("--num_global_steps", type=int, default=1e6)
     parser.add_argument("--num_processes", type=int, default=4,
                         help="Number of concurrent processes, has to be larger than 1")
     parser.add_argument("--save_interval", type=int, default=50,

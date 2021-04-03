@@ -33,7 +33,7 @@ def evaluate(opt, global_model, num_states, num_actions):
         writer = csv.writer(sfile)
         writer.writerow(title)
 
-    env = create_train_env(opt.world,opt.stage,actions, mp_wrapper=False)
+    env = create_train_env(opt.world, opt.stage, actions, mp_wrapper=False)
     local_model = PPO(num_states, num_actions)
     if torch.cuda.is_available():
         local_model.cuda()
@@ -42,7 +42,7 @@ def evaluate(opt, global_model, num_states, num_actions):
     state = torch.from_numpy(env.reset())
     if torch.cuda.is_available():
         state = state.cuda()
-    
+
     done = True
     curr_step = 0
     tot_step = 0
@@ -57,7 +57,8 @@ def evaluate(opt, global_model, num_states, num_actions):
 
         logits, value = local_model(state)
         policy = F.softmax(logits, dim=1)
-        action = torch.argmax(policy).item() # This selects the best action to take
+        # This selects the best action to take
+        action = torch.argmax(policy).item()
         state, reward, done, info = env.step(action)
         tot_reward += reward
 
@@ -65,8 +66,6 @@ def evaluate(opt, global_model, num_states, num_actions):
         actions.append(action)
         if actions.count(actions[0]) == actions.maxlen:
             done = True
-
-
         if curr_step > opt.num_global_steps:
             torch.save(local_model.state_dict(),
                        "{}/PPO_arkanoid_{}".format(opt.saved_path, curr_step))
@@ -75,11 +74,12 @@ def evaluate(opt, global_model, num_states, num_actions):
         if done:
             # print("Evaluate: Done!")
             ep_time = time.time() - start_time
-            data = [tot_step, "{:.4f}".format(ep_time), "{:.2f}".format(tot_reward)]
+            data = [tot_step, "{:.4f}".format(
+                ep_time), "{:.2f}".format(tot_reward)]
             with open(savefile, 'a', newline='') as sfile:
                 writer = csv.writer(sfile)
                 writer.writerows([data])
-            
+
             curr_step = 0
             tot_reward = 0
             actions.clear()
