@@ -5,24 +5,24 @@ From: https://github.com/uvipen/Super-mario-bros-PPO-pytorch
 Re-implemented to use gym-retro
 """
 
-import os
 import argparse
+import csv
+import os
+import shutil
+import sys
+import time
+from datetime import datetime
+
+import numpy as np
 import torch
+import torch.multiprocessing as _mp
+import torch.nn.functional as F
+from torch.distributions import Categorical
+
 from src.env import MultipleEnvironments
+from src.helpers import _is_stage_over, flag_get
 from src.model import PPO
 from src.process import evaluate
-import torch.multiprocessing as _mp
-from torch.distributions import Categorical
-import torch.nn.functional as F
-import numpy as np
-import shutil
-import csv
-import time
-import sys
-import os
-from src.helpers import flag_get
-from src.helpers import _is_stage_over
-from datetime import datetime
 
 os.environ['OMP_NUM_THREADS'] = '1'
 os.environ['DISPLAY'] = ':1'
@@ -49,7 +49,7 @@ def get_args():
     parser.add_argument('--batch_size', type=int, default=16)
     parser.add_argument('--num_epochs', type=int, default=10)
     parser.add_argument("--num_local_steps", type=int, default=512)
-    parser.add_argument("--num_global_steps", type=int, default=1e5)
+    parser.add_argument("--num_global_steps", type=int, default=2e6)
     parser.add_argument("--num_processes", type=int, default=4,
                         help="Number of concurrent processes, has to be larger than 1")
     parser.add_argument("--save_interval", type=int, default=50,
@@ -97,8 +97,7 @@ def train(opt):
 
     savefile = opt.saved_path + '/mario_PPO_train' + opt.timestr + '.csv'
     print(savefile)
-    title = ['Loops', 'Steps', 'Time', 'MeanReward',
-             'Flags', "MeanScores", "MeanScrolls"]
+    title = ['Loops', 'Steps', 'Time', 'Reward1',"Reward2","Reward3","Reward4","Score1","Score2","Score3","Score4"]
     with open(savefile, 'w', newline='') as sfile:
         writer = csv.writer(sfile)
         writer.writerow(title)
@@ -165,7 +164,6 @@ def train(opt):
         dones = []
         flags = []
         scores = []
-        scrolls = []
         for _ in range(opt.num_local_steps):
             # From given states, predict an action
             states.append(curr_states)
@@ -206,9 +204,10 @@ def train(opt):
 
             rewards.append(reward)
             dones.append(done)
+            #print(info)
             for i in range(4):
-                scores.append(int(info[i]['score']))
-                scrolls.append(int(info[i]['xscrollLo']))
+                scores.append((info[i]['score']))
+
             flags.append(check_flag(info) / opt.num_processes)
             curr_states = state
 
@@ -264,23 +263,25 @@ def train(opt):
         #std_reward = np.std(all_rewards)
         any_flags = np.sum(flags)
         ep_time = time.time() - start_time
-        mean_scores = np.mean(scores)
-        mean_scrolls = np.mean(scrolls)
+       # mean_scores = np.mean(scores)
+       # print("mean")
+
+        #print(mean_scores)
         # data = [tot_loops, tot_steps, ep_time, avg_loss, mu_reward, std_reward, sum_reward, any_flags]
         data = [tot_loops, tot_steps, "{:.6f}".format(ep_time), "{:.4f}".format(
-            mu_reward),any_flags,"{:.2f}".format(mean_scores),"{:.2f}".format(mean_scrolls)]
+            mu_reward),(all_rewards[0]),(all_rewards[1]),(all_rewards[2]),(all_rewards[3]),(scores[0]),(scores[1]),(scores[2]),(scores[3])]
 
         with open(savefile, 'a', newline='') as sfile:
             writer = csv.writer(sfile)
             writer.writerows([data])
         elapsed_time = time.time() - start_time
-        print("Steps: {}. Total loss: {}. Time elapsed: {}".format(
-            tot_steps, total_loss, time.strftime("%H:%M:%S", time.gmtime(elapsed_time))))
-        if check_flag(info):
+        print("Steps: {}. Time elapsed: {}".format(
+            tot_steps, time.strftime("%H:%M:%S", time.gmtime(elapsed_time))))
+       # if check_flag(info):
             #Uncomment lines below if you want to save when flag is reached
-            torch.save(model.state_dict(),
-                       "{}/PPO_super_mario_bros_{}".format(opt.saved_path, tot_loops))
-            print("Got flag in training at time {} step {}".format(tot_steps,time.strftime("%H:%M:%S", time.gmtime(elapsed_time))))
+            #torch.save(model.state_dict(),
+                   #    "{}/PPO_super_mario_bros_{}".format(opt.saved_path, tot_loops))
+           # print("Got flag in training at time {} step {}".format(tot_steps,time.strftime("%H:%M:%S", time.gmtime(elapsed_time))))
 
 
 if __name__ == "__main__":

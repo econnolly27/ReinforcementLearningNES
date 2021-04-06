@@ -7,8 +7,7 @@ import torch
 from src.env import create_train_env
 from src.model import PPO
 from src.env import MultipleEnvironments
-from src.helpers import JoypadSpace, SIMPLE_MOVEMENT, COMPLEX_MOVEMENT, RIGHT_ONLY
-#from gym_super_mario_bros.actions import SIMPLE_MOVEMENT, COMPLEX_MOVEMENT, RIGHT_ONLY
+from src.helpers import JoypadSpace, SIMPLE_MOVEMENT, COMPLEX_MOVEMENT, RIGHT_ONLY, flag_get
 import torch.nn.functional as F
 
 os.environ['DISPLAY'] = ':1'
@@ -65,9 +64,9 @@ def test(opt):
         state, reward, done, info = env.step(action)
         state = torch.from_numpy(state)
         env.render()
-        #if flag_get(info):
-         #   print("World {} stage {} completed".format(opt.world, opt.stage))
-          #  break
+        if flag_get(info):
+            print("World {} stage {} completed".format(opt.world, opt.stage))
+            break
 
 
 if __name__ == "__main__":

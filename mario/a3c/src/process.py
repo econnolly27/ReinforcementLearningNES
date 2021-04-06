@@ -21,7 +21,7 @@ def local_train(index, opt, global_model, optimizer, save=False):
     start_time = time.time()
 
     savefile = opt.saved_path + '/mario_a3c_train' + opt.timestr + '.csv'
-    title = ['Episode','Steps','Time','Reward','Flag','Score','xscrollLo','TotalReward']
+    title = ['Episode','Steps','Time','Reward','Score','TotalReward']
     with open(savefile, 'w', newline='') as sfile:
         writer = csv.writer(sfile)
         writer.writerow(title)
@@ -159,8 +159,7 @@ def local_train(index, opt, global_model, optimizer, save=False):
 
         if curr_episode % 100 == 0:
 
-            data = [curr_step, tot_steps, "{:.6f}".format(ep_time), "{:.4f}".format(reward),
-             got_flag,"{:.2f}".format(info["score"]),"{:.2f}".format(info["xscrollLo"]),"{:.4f}".format(tot_reward)]
+            data = [curr_step, tot_steps, "{:.6f}".format(ep_time), "{:.4f}".format(reward),"{:.2f}".format(info["score"]),"{:.4f}".format(tot_reward)]
             
             with open(savefile, 'a', newline='') as sfile:
                 writer = csv.writer(sfile)
@@ -238,7 +237,7 @@ def local_test(index, opt, global_model):
 
         if flag_get(info):
             got_flag = 1
-            print("Got flag")
+            #print("Got flag")
             done = True
        #     torch.save(local_model.state_dict(),
          #              "{}/a3c_super_mario_bros_{}".format(opt.saved_path, curr_step))
