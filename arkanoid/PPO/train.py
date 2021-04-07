@@ -87,7 +87,7 @@ def train(opt):
 
     savefile = opt.saved_path + '/arkanoid_PPO_train' + opt.timestr + '.csv'
     print(savefile)
-    title = ['Loops', 'Steps', 'Time', 'Reward1',"Reward2","Reward3","Reward4","Score1","Score2","Score3","Score4"]
+    title = ['Loops', 'Steps', 'Time','MeanReward', 'Reward1',"Reward2","Reward3","Reward4","Score1","Score2","Score3","Score4"]
     with open(savefile, 'w', newline='') as sfile:
         writer = csv.writer(sfile)
         writer.writerow(title)

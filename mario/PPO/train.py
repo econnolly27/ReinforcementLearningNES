@@ -97,7 +97,7 @@ def train(opt):
 
     savefile = opt.saved_path + '/mario_PPO_train' + opt.timestr + '.csv'
     print(savefile)
-    title = ['Loops', 'Steps', 'Time', 'Reward1',"Reward2","Reward3","Reward4","Score1","Score2","Score3","Score4"]
+    title = ['Loops', 'Steps', 'Time', 'MeanReward','Reward1',"Reward2","Reward3","Reward4","Score1","Score2","Score3","Score4"]
     with open(savefile, 'w', newline='') as sfile:
         writer = csv.writer(sfile)
         writer.writerow(title)
@@ -151,6 +151,7 @@ def train(opt):
             print('The code runs for {}'.format(time.strftime("%H:%M:%S", time.gmtime(end_time))))
             print("Training process terminated")
             process.terminate()
+            torch.cuda.empty_cache()
             os._exit(0)
            # sys.exit()
 

@@ -10,10 +10,9 @@ from src.optimizer import GlobalAdam
 from src.process import local_train, local_test
 import torch.multiprocessing as _mp
 import shutil,csv,time,sys
-from src.helpers import flag_get
 from datetime import datetime
 import numpy as np
-from src.helpers import JoypadSpace, SIMPLE_MOVEMENT, COMPLEX_MOVEMENT, RIGHT_ONLY, flag_get
+from src.helpers import JoypadSpace, SIMPLE_MOVEMENT, COMPLEX_MOVEMENT, RIGHT_ONLY
 
 
 os.environ['OMP_NUM_THREADS'] = '1'
@@ -44,12 +43,6 @@ def get_args():
     args = parser.parse_args()
     return args
 
-def check_flag(info):
-    out = 0
-    for i in info:
-        if flag_get(i):
-            out += 1
-    return out
 
 def train(opt):
     seed = 123
@@ -60,7 +53,7 @@ def train(opt):
         torch.manual_seed(seed)
         print("not using cuda")
 
-    opt.saved_path = os.getcwd() + '/mario/a3c/' + opt.saved_path
+    opt.saved_path = os.getcwd() + '/arkanoid/a3c/' + opt.saved_path
 
     if opt.action_type == "right":
         actions = RIGHT_ONLY
