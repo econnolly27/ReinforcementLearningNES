@@ -59,11 +59,6 @@ class CustomReward(Wrapper):
         state = process_frame(state)
         reward += (info["score"] - self.curr_score) / 40.
         self.curr_score = info["score"]
-        #if done:
-         #   if flag_get(info):
-           #     reward += 50
-           # else:
-           #     reward -= 50
         return state, reward, done, info
 
     def reset(self):
