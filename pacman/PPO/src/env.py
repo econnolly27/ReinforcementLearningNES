@@ -5,20 +5,17 @@
 import os
 import gym
 import retro
-# import gym_super_mario_bros
 from gym.spaces import Box
 from gym import Wrapper
-# from nes_py.wrappers import JoypadSpace
-# from gym_super_mario_bros.actions import SIMPLE_MOVEMENT, COMPLEX_MOVEMENT, RIGHT_ONLY
 import cv2
 import numpy as np
 import subprocess as sp
 import torch.multiprocessing as mp
-from src.helpers import JoypadSpace, SIMPLE_MOVEMENT, COMPLEX_MOVEMENT, RIGHT_ONLY, flag_get
+from src.helpers import JoypadSpace, SIMPLE_MOVEMENT, COMPLEX_MOVEMENT, RIGHT_ONLY
 from src.retrowrapper import RetroWrapper
 
-SCRIPT_DIR = os.getcwd() #os.path.dirname(os.path.abspath(__file__))
-ENV_NAME = 'SMB-JU'
+SCRIPT_DIR = os.getcwd() 
+ENV_NAME = 'PacManNamco-Nes'
 
 class Monitor:
     def __init__(self, width, height, saved_path):
@@ -60,12 +57,7 @@ class CustomReward(Wrapper):
         state = process_frame(state)
         reward += (info["score"] - self.curr_score) / 40.
         self.curr_score = info["score"]
-        if done:
-            if flag_get(info): #info["flag_get"]:
-                reward += 50
-            else:
-                reward -= 50
-        return state, reward / 10., done, info
+        return state, reward, done, info
 
     def reset(self):
         self.curr_score = 0
@@ -102,13 +94,11 @@ class CustomSkipFrame(Wrapper):
 
 
 def create_train_env(world,stage,actions, output_path=None, mp_wrapper=True):
-    # env = gym_super_mario_bros.make("SuperMarioBros-{}-{}-v0".format(world, stage))
 
     retro.data.Integrations.add_custom_path(os.path.join(SCRIPT_DIR, "retro_integration"))
-    print(retro.data.list_games(inttype=retro.data.Integrations.CUSTOM_ONLY))
-    print(ENV_NAME in retro.data.list_games(inttype=retro.data.Integrations.CUSTOM_ONLY))
-    obs_type = retro.Observations.IMAGE # or retro.Observations.RAM
-    LVL_ID = 'Level{}-{}'.format(world,stage)
+    obs_type = retro.Observations.IMAGE
+    LVL_ID = 'Level1'
+
     if mp_wrapper:
         env = RetroWrapper(ENV_NAME, state=LVL_ID, record=False, inttype=retro.data.Integrations.CUSTOM_ONLY, obs_type=obs_type)
     else:
@@ -134,7 +124,6 @@ class MultipleEnvironments:
         else:
             actions = COMPLEX_MOVEMENT
 
-        # self.envs = create_train_env(actions, output_path=output_path)
         self.envs = [create_train_env(world,stage,actions, output_path=output_path) for _ in range(num_envs)]
         
         self.num_states = self.envs[0].observation_space.shape[0]
