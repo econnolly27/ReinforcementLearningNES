@@ -9,11 +9,10 @@ from src.model import ActorCritic
 from src.optimizer import GlobalAdam
 from src.process import local_train, local_test
 import torch.multiprocessing as _mp
-import shutil,csv,time
-from src.helpers import flag_get
+import shutil,csv,time,sys
 from datetime import datetime
 import numpy as np
-from src.helpers import JoypadSpace, SIMPLE_MOVEMENT, COMPLEX_MOVEMENT, RIGHT_ONLY, flag_get
+from src.helpers import JoypadSpace, SIMPLE_MOVEMENT, COMPLEX_MOVEMENT, RIGHT_ONLY
 
 
 os.environ['OMP_NUM_THREADS'] = '1'
@@ -31,10 +30,11 @@ def get_args():
     parser.add_argument('--tau', type=float, default=1.0, help='parameter for GAE')
     parser.add_argument('--beta', type=float, default=0.01, help='entropy coefficient')
     parser.add_argument("--num_local_steps", type=int, default=50)
-    parser.add_argument("--num_global_steps", type=int, default=5e6)
+    parser.add_argument("--num_global_steps", type=int, default=2e6)
     parser.add_argument("--num_processes", type=int, default=4)
-    parser.add_argument("--save_interval", type=int, default=1000, help="Number of steps between savings")
+    parser.add_argument("--save_interval", type=int, default=2000, help="Number of steps between savings")
     parser.add_argument("--max_actions", type=int, default=200, help="Maximum repetition steps in test phase")
+    parser.add_argument("--log_path", type=str, default="tensorboard/a3c_super_mario_bros")
     parser.add_argument("--timestr", type=str, default=timestr)
     parser.add_argument("--saved_path", type=str, default="trained_models/"+ timestr)
     parser.add_argument("--load_from_previous_stage", type=bool, default=False,
@@ -43,12 +43,6 @@ def get_args():
     args = parser.parse_args()
     return args
 
-#def check_flag(info):
- #   out = 0
-  #  for i in info:
-   #     if flag_get(i):
-   #         out += 1
-   # return out
 
 def train(opt):
     seed = 123
@@ -102,7 +96,6 @@ def train(opt):
     processes.append(process)
     for process in processes:
         process.join()
-
 
 if __name__ == "__main__":
     opt = get_args()

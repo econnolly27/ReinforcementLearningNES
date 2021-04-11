@@ -1,23 +1,39 @@
 # Reinforcement Learning in NES Games
 # Level 4 Individual Project
-# Erin Connolly 2314064C
+# Erin-Louise Connolly 2314064C
 
-## Setup Instructions
+# Readme
 
-* Get Anaconda (version doesn't matter)
-* Get CUDA 11 from https://developer.nvidia.com/cuda-downloads?target_os=Linux&target_arch=x86_64&target_distro=Ubuntu&target_version=2004&target_type=debnetwork
-  * Make sure to download "deb-network" and follow the instructions in the page
-* `conda create --name project python=3.7.5`
-* Activate mariobm environment with: `conda activate project`
-* Following commands should be run inside project environment:
-  * `conda install pytorch torchvision cudatoolkit=11 -c pytorch`
-  * `conda install scikit-learn scipy pandas matplotlib`
-  * `conda install -c conda-forge scikit-image scikit-plot`
-  * `conda install scipy scikit-image scikit-learn pillow pandas numpy matplotlib imageio`
-  * `pip3 install opencv-python`
-  * `pip3 install gym-retro==0.8.0` (If you get an error about there will be errors after 2020 while updating or installing packages, just ignore it)
-## Extra notes
+Each game has its own directory containing the code to train and test models.'retro_integration' contains the Retro data for each game, for example the reward and game data. 'testing' contains the code used to extract data from each game run, generating and saving graphs. It also contains a random agent used for comparison. 
 
-* Activate env: `conda activate project`
-* Check GPU usage: `watch nvidia-smi`
+## Build instructions
 
+### Requirements
+
+It is recommended to run this project within a virtual environment. The requirements are:
+
+* Python 3.7.5
+* Tested on Ubuntu 20.10
+* Requires 32GB of RAM and 8GB of VRAM 
+* Installation instructions are in `manual.md`. 
+
+### Build steps
+
+This repository does not include NES ROM files needed to run the code. These can be found by searching online the hash found in the rom.sha file in each game's folder within the retro-integration directory. Once downloaded, place the ROM file in the game's retro-integration folder and rename it rom.nes. 
+
+To run the code, from the `src` directory:
+
+* Train model: `python game/algorithm/train.py` For example: `python mario/PPO/train.py --lr 1e-5 --num_global_steps 4e6`
+* Test model: `python game/algorithm/train.py` For example: `python gradius/a3c/test.py --num_processes 2`
+    *  Ensure there is a saved model located within the trained_models folder for that game. 
+
+### Test steps
+
+Test training a model: `python mario/PPO/train.py`
+
+Test testing a model: `python mario/PPO/train.py` An example model is provided for testing purposes. 
+
+
+### Note
+
+Please note that training an agent is computationally intensive. On slower machines, it may help to reduce the number of processes in train.py to 2 from 4. 

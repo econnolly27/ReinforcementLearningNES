@@ -26,7 +26,7 @@ def evaluate(opt, global_model, num_states, num_actions):
     else:
         actions = COMPLEX_MOVEMENT
 
-    savefile = opt.saved_path + '/gradius_PPO_test' + opt.timestr + '.csv'
+    savefile = opt.saved_path + '/arkanoid_PPO_test' + opt.timestr + '.csv'
     print(savefile)
     title = ['Steps', 'Time', 'TotalReward']
     with open(savefile, 'w', newline='') as sfile:
