@@ -1,7 +1,9 @@
 """
 @author: Viet Nguyen <nhviet1009@gmail.com>
-"""
+From: https://github.com/uvipen/Super-mario-bros-A3C-pytorch
 
+Modified for Benchmarking Reinforcement Learning Algorithms in NES Games by Erin-Louise Connolly
+"""
 import torch
 
 class GlobalAdam(torch.optim.Adam):

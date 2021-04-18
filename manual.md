@@ -19,3 +19,5 @@ You can then train or test a model by running the code from the `src` directory:
 * Train model: `python game/algorithm/train.py` For example: `python mario/PPO/train.py --lr 1e-5 --num_global_steps 4e6`
 * Test model: `python game/algorithm/train.py` For example: `python gradius/a3c/test.py --num_processes 2`
    *  Ensure there is a saved model located within the trained_models folder for that game. 
+   
+The training or testing process can be stopped by using Ctrl-C in the command line it is running in.

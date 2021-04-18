@@ -2,7 +2,9 @@
 @author: Viet Nguyen <nhviet1009@gmail.com>
 From: https://github.com/uvipen/Super-mario-bros-PPO-pytorch
 
-Re-implemented to use gym-retro
+Re-implemented to use gym-retro by Gerardo Aragon-Camarasa
+
+Modified for Benchmarking Reinforcement Learning Algorithms in NES Games by Erin-Louise Connolly
 """
 
 import argparse

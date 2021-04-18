@@ -1,7 +1,9 @@
 """
 @author: Viet Nguyen <nhviet1009@gmail.com>
-"""
+From: https://github.com/uvipen/Super-mario-bros-A3C-pytorch
 
+Modified for Benchmarking Reinforcement Learning Algorithms in NES Games by Erin-Louise Connolly
+"""
 import torch
 from src.env import create_train_env
 from src.model import ActorCritic
@@ -76,7 +78,6 @@ def local_train(index, opt, global_model, optimizer, save=False):
             action = m.sample().item()
 
             state, reward, done, info = env.step(action)
-            #print(type(reward))
             state = torch.from_numpy(state)
             if opt.use_gpu:
                 state = state.cuda()
@@ -130,7 +131,6 @@ def local_train(index, opt, global_model, optimizer, save=False):
 
         avg_loss = 0
         mean_reward=0
-       #print(total_loss)
         tot_steps = opt.num_local_steps * curr_episode
 
 
@@ -199,9 +199,6 @@ def local_test(index, opt, global_model):
         if curr_step > opt.num_global_steps:
             done = True
             sys.exit("Test process terminated")
-
-            #torch.save(local_model.state_dict(),
-                       #"{}/a3c_super_mario_bros_{}".format(opt.saved_path, curr_step))
 
         if done:          
             tot_reward = 0

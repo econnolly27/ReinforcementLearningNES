@@ -1,5 +1,8 @@
 """
 @author: Viet Nguyen <nhviet1009@gmail.com>
+From: https://github.com/uvipen/Super-mario-bros-A3C-pytorch
+
+Modified for Benchmarking Reinforcement Learning Algorithms in NES Games by Erin-Louise Connolly
 """
 import os
 import argparse
@@ -67,7 +70,6 @@ def train(opt):
     now = datetime.now()
 
     current_time = now.strftime("%H:%M:%S")
-    print("Current Time =", current_time)
     start_time = time.time()
     if not os.path.isdir(opt.saved_path):
         os.makedirs(opt.saved_path)

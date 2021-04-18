@@ -2,7 +2,9 @@
 @author: Viet Nguyen <nhviet1009@gmail.com>
 From: https://github.com/uvipen/Super-mario-bros-PPO-pytorch
 
-Re-implemented to use gym-retro
+Re-implemented to use gym-retro by Gerardo Aragon-Camarasa
+
+Modified for Benchmarking Reinforcement Learning Algorithms in NES Games by Erin-Louise Connolly
 """
 
 import argparse
@@ -82,7 +84,6 @@ def train(opt):
     now = datetime.now()
 
     current_time = now.strftime("%H:%M:%S")
-    print("Current Time =", current_time)
     start_time = time.time()
 
     savefile = opt.saved_path + '/arkanoid_PPO_train' + opt.timestr + '.csv'
